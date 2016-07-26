@@ -73,6 +73,34 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>log4j-over-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        
+        <!--  component specific dependencies -->
+        <dependency>
+            <groupId>com.dropbox.core</groupId>
+            <artifactId>dropbox-core-sdk</artifactId>
+            <version>2.0.6</version>
+        </dependency>
+        <dependency>
+    		<groupId>org.apache.httpcomponents</groupId>
+    		<artifactId>httpclient</artifactId>
+    		<version>4.2.5</version>
+		</dependency>
+        <!-- force to use 2.5.3 version of jackson -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.5.3</version>
         </dependency>
     </dependencies>
     
@@ -132,8 +160,8 @@
                             <instructions>
                                 <Bundle-SymbolicName>org.talend.components.dropbox</Bundle-SymbolicName>
                                 <Service-Component>*</Service-Component>
-                                <Import-Package>*,aQute.bnd.annotation.component</Import-Package>
-                                <Embed-Dependency>*;scope=compile|runtime;inline=false;artifactId=!components*</Embed-Dependency>
+                                <Import-Package>!android*,!com.google.appengine*,!com.squareup*,!javax*,!okhttp3*,!okio*,*,aQute.bnd.annotation.component</Import-Package>
+                                <Embed-Dependency>*;scope=compile|runtime;inline=false;artifactId=!components*|jackson-core|httpclient</Embed-Dependency>
                                 <Include-Resource>{maven-resources},META-INF/maven/org.talend.components/components-dropbox/dependencies.txt=target/classes/META-INF/maven/dependencies.txt</Include-Resource>
                                 <Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
                             </instructions>

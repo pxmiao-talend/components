@@ -48,8 +48,7 @@ public class TDropboxConnectionDefinition extends DropboxDefinition implements E
 
     @Override
     public Class<? extends ComponentProperties> getPropertyClass() {
-        // TODO Auto-generated method stub
-        return null;
+        return TDropboxConnectionProperties.class;
     }
 
     /**

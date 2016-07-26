@@ -16,7 +16,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.talend.components.dropbox.DropboxDefinition;
@@ -75,7 +74,7 @@ public class TDropboxConnectionDefinitionTest {
         DropboxDefinition definition = new TDropboxConnectionDefinition();
         Class<?> propertyClass = definition.getPropertyClass();
         String canonicalName = propertyClass.getCanonicalName();
-        assertThat(canonicalName, equalTo("org.talend.components.jira.tjirainput.TDropboxConnectionProperties"));
+        assertThat(canonicalName, equalTo("org.talend.components.dropbox.tdropboxconnection.TDropboxConnectionProperties"));
     }
 
     /**
@@ -88,13 +87,4 @@ public class TDropboxConnectionDefinitionTest {
     //        assertThat(source, is(instanceOf(DropboxSourceOrSink.class)));
     //    }
 
-    /**
-     * Check {@link TDropboxConnectionDefinition#isSchemaAutoPropagate()} returns <code>true</code>
-     */
-    @Test
-    public void testIsSchemaAutoPropagate() {
-        DropboxDefinition definition = new TDropboxConnectionDefinition();
-        boolean result = definition.isSchemaAutoPropagate();
-        assertTrue(result);
-    }
 }

@@ -59,7 +59,7 @@ public class TJDBCConnectionDefinition extends AbstractComponentDefinition imple
 
     @Override
     public Property[] getReturnProperties() {
-        return null;
+        return new Property[] { RETURN_ERROR_MESSAGE_PROP };
     }
 
     @Override

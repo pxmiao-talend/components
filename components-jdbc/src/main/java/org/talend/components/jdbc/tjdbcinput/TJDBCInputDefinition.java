@@ -69,7 +69,7 @@ public class TJDBCInputDefinition extends AbstractComponentDefinition implements
 
     @Override
     public Property[] getReturnProperties() {
-        return null;
+        return new Property[] { RETURN_ERROR_MESSAGE_PROP };
     }
 
 }

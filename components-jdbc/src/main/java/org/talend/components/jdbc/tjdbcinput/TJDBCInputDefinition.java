@@ -30,7 +30,7 @@ import aQute.bnd.annotation.component.Component;
 @Component(name = Constants.COMPONENT_BEAN_PREFIX + TJDBCInputDefinition.COMPONENT_NAME, provide = ComponentDefinition.class)
 public class TJDBCInputDefinition extends AbstractComponentDefinition implements InputComponentDefinition {
 
-    public static final String COMPONENT_NAME = "tJDBCInput";
+    public static final String COMPONENT_NAME = "tJDBCInputNew";
 
     public TJDBCInputDefinition() {
         super(COMPONENT_NAME);

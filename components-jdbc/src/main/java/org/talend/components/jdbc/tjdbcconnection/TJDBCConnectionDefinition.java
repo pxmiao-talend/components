@@ -25,7 +25,7 @@ import aQute.bnd.annotation.component.Component;
 @Component(name = Constants.COMPONENT_BEAN_PREFIX + TJDBCConnectionDefinition.COMPONENT_NAME, provide = ComponentDefinition.class)
 public class TJDBCConnectionDefinition extends AbstractComponentDefinition implements EndpointComponentDefinition {
 
-    public static final String COMPONENT_NAME = "tJDBCConnection";
+    public static final String COMPONENT_NAME = "tJDBCConnectionNew";
 
     public TJDBCConnectionDefinition() {
         super(COMPONENT_NAME);

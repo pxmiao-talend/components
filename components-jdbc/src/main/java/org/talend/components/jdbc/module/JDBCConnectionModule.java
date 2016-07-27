@@ -24,7 +24,8 @@ public class JDBCConnectionModule extends PropertiesImpl {
     @Override
     public void setupProperties() {
         super.setupProperties();
-        jdbcUrl.setValue("jdbc:");
+        // TODO fix it
+        // jdbcUrl.setValue("jdbc:");
     }
 
     @Override

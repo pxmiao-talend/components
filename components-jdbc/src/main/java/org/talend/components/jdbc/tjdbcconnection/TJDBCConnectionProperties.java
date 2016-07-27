@@ -14,7 +14,6 @@ package org.talend.components.jdbc.tjdbcconnection;
 
 import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.jdbc.CommonUtils;
-import org.talend.components.jdbc.module.DataSourceModule;
 import org.talend.components.jdbc.module.JDBCConnectionModule;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.property.Property;
@@ -29,11 +28,13 @@ public class TJDBCConnectionProperties extends ComponentPropertiesImpl {
     // main
     public JDBCConnectionModule connection = new JDBCConnectionModule("connection");
 
-    public DataSourceModule dataSource = new DataSourceModule("dataSource");
-
     public Property<Boolean> shareConnection = PropertyFactory.newBoolean("shareConnection");
 
     public Property<String> sharedConnectionName = PropertyFactory.newString("sharedConnectionName");
+
+    public Property<Boolean> useDataSource = PropertyFactory.newBoolean("useDataSource").setRequired();
+
+    public Property<String> dataSource = PropertyFactory.newProperty("dataSource").setRequired();
 
     // advanced
     public Property<Boolean> useAutoCommit = PropertyFactory.newBoolean("useAutoCommit");
@@ -55,11 +56,24 @@ public class TJDBCConnectionProperties extends ComponentPropertiesImpl {
         mainForm.addRow(connection.getForm(Form.MAIN));
         mainForm.addRow(shareConnection);
         mainForm.addRow(sharedConnectionName);
-        mainForm.addRow(dataSource.getForm(Form.MAIN));
+        mainForm.addRow(useDataSource);
+        mainForm.addRow(dataSource);
 
         Form advancedForm = CommonUtils.addForm(this, Form.ADVANCED);
         advancedForm.addRow(useAutoCommit);
         advancedForm.addColumn(autocommit);
+    }
+
+    public void afterShareConnection() {
+        refreshLayout(getForm(Form.MAIN));
+    }
+
+    public void afterUseDataSource() {
+        refreshLayout(getForm(Form.MAIN));
+    }
+
+    public void afterUseAutoCommit() {
+        refreshLayout(getForm(Form.ADVANCED));
     }
 
     @Override
@@ -74,23 +88,22 @@ public class TJDBCConnectionProperties extends ComponentPropertiesImpl {
             if (shareConnection.getValue()) {
                 form.getWidget(sharedConnectionName.getName()).setHidden(false);
 
-                form.getChildForm(dataSource.getName()).getWidget(dataSource.useDataSource.getName()).setHidden(true);
-                form.getChildForm(dataSource.getName()).getWidget(dataSource.dataSource.getName()).setHidden(true);
+                form.getWidget(useDataSource.getName()).setHidden(true);
+                form.getWidget(dataSource.getName()).setHidden(true);
             } else {
                 form.getWidget(sharedConnectionName.getName()).setHidden(true);
 
-                form.getChildForm(dataSource.getName()).getWidget(dataSource.useDataSource.getName()).setHidden(false);
-                form.getChildForm(dataSource.getName()).getWidget(dataSource.dataSource.getName())
-                        .setHidden(!dataSource.useDataSource.getValue());
+                form.getWidget(useDataSource.getName()).setHidden(false);
+                form.getWidget(dataSource.getName()).setHidden(!useDataSource.getValue());
             }
 
-            if (dataSource.useDataSource.getValue()) {
-                form.getChildForm(dataSource.getName()).getWidget(dataSource.dataSource.getName()).setHidden(false);
+            if (useDataSource.getValue()) {
+                form.getWidget(dataSource.getName()).setHidden(false);
 
                 form.getWidget(shareConnection.getName()).setHidden(true);
                 form.getWidget(sharedConnectionName.getName()).setHidden(true);
             } else {
-                form.getChildForm(dataSource.getName()).getWidget(dataSource.dataSource.getName()).setHidden(true);
+                form.getWidget(dataSource.getName()).setHidden(true);
 
                 form.getWidget(shareConnection.getName()).setHidden(false);
                 form.getWidget(sharedConnectionName.getName()).setHidden(!shareConnection.getValue());

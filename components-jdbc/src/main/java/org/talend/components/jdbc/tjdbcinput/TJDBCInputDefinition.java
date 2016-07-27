@@ -20,6 +20,7 @@ import org.talend.components.api.component.runtime.Source;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.jdbc.tjdbcconnection.TJDBCConnectionProperties;
 import org.talend.daikon.properties.property.Property;
+import org.talend.daikon.properties.property.PropertyFactory;
 
 import aQute.bnd.annotation.component.Component;
 
@@ -67,9 +68,11 @@ public class TJDBCInputDefinition extends AbstractComponentDefinition implements
         return "components-jdbc";
     }
 
+    static final Property<String> RETURN_QUERY_PROP = PropertyFactory.newString(RETURN_ERROR_MESSAGE);
+
     @Override
     public Property[] getReturnProperties() {
-        return new Property[] { RETURN_ERROR_MESSAGE_PROP };
+        return new Property[] { RETURN_ERROR_MESSAGE_PROP, RETURN_TOTAL_RECORD_COUNT_PROP, RETURN_QUERY_PROP };
     }
 
 }

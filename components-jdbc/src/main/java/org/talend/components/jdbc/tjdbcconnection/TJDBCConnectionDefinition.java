@@ -68,4 +68,10 @@ public class TJDBCConnectionDefinition extends AbstractComponentDefinition imple
         return null;
     }
 
+    @Override
+    public boolean isStartable() {
+        return true;
+
+    }
+
 }

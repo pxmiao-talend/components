@@ -16,12 +16,6 @@ public class DataSourceModule extends PropertiesImpl {
     }
 
     @Override
-    public void setupProperties() {
-        super.setupProperties();
-        useDataSource.setValue(false);
-    }
-
-    @Override
     public void setupLayout() {
         super.setupLayout();
 

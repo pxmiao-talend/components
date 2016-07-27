@@ -18,7 +18,6 @@ import org.talend.components.api.component.ComponentDefinition;
 import org.talend.components.api.component.InputComponentDefinition;
 import org.talend.components.api.component.runtime.Source;
 import org.talend.components.api.properties.ComponentProperties;
-import org.talend.components.jdbc.runtime.JDBCSource;
 import org.talend.components.jdbc.tjdbcconnection.TJDBCConnectionProperties;
 import org.talend.daikon.properties.property.Property;
 
@@ -50,7 +49,7 @@ public class TJDBCInputDefinition extends AbstractComponentDefinition implements
 
     @Override
     public Source getRuntime() {
-        return new JDBCSource();
+        return null;
     }
 
     @Override

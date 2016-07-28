@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.jdbc.tjdbcinput;
+package org.talend.components.jdbc.tjdbcoutput;
 
 import static org.talend.daikon.properties.presentation.Widget.widget;
 
@@ -26,9 +26,9 @@ import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 
-public class TJDBCInputProperties extends ComponentPropertiesImpl implements ComponentReferencePropertiesEnclosing {
+public class TJDBCOutputProperties extends ComponentPropertiesImpl implements ComponentReferencePropertiesEnclosing {
 
-    public TJDBCInputProperties(String name) {
+    public TJDBCOutputProperties(String name) {
         super(name);
     }
 
@@ -37,32 +37,40 @@ public class TJDBCInputProperties extends ComponentPropertiesImpl implements Com
 
     public JDBCConnectionModule connection = new JDBCConnectionModule("connection");
 
-    public SchemaProperties schema = new SchemaProperties("schema");
-
     public Property<String> tablename = PropertyFactory.newString("tablename").setRequired(true);
 
-    // TODO query type
+    public enum DataAction {
+        Insert,
+        Update,
+        InsertOrUpdate,
+        UpdateOrInsert,
+        Delete
+    }
 
-    // TODO guess the query by the talend schema
+    public Property<DataAction> dataAction = PropertyFactory.newEnum("dataAction", DataAction.class).setRequired();
 
-    // TODO guess the talend schema by the query
+    public Property<Boolean> clearDataInTable = PropertyFactory.newBoolean("clearDataInTable").setRequired();
 
-    public Property<String> sql = PropertyFactory.newString("sql").setRequired(true);
+    public SchemaProperties schema = new SchemaProperties("schema");
+
+    public Property<Boolean> dieOnError = PropertyFactory.newBoolean("dieOnError").setRequired();
 
     public Property<Boolean> useDataSource = PropertyFactory.newBoolean("useDataSource").setRequired();
 
     public Property<String> dataSource = PropertyFactory.newProperty("dataSource").setRequired();
 
     // advanced
-    public Property<Boolean> useCursor = PropertyFactory.newBoolean("useCursor").setRequired();
+    public Property<Integer> commitEvery = PropertyFactory.newInteger("commitEvery").setRequired();
 
-    public Property<Integer> cursor = PropertyFactory.newInteger("cursor").setRequired();
+    // TODO additional columns
 
-    public Property<Boolean> trimStringOrCharColumns = PropertyFactory.newBoolean("trimStringOrCharColumns").setRequired();
+    // TODO use field options and table
 
-    // TODO the tirm table
+    public Property<Boolean> debug = PropertyFactory.newBoolean("debug").setRequired();
 
-    // TODO enable mapping for dynamic
+    public Property<Boolean> useBatch = PropertyFactory.newBoolean("useBatch").setRequired();
+
+    public Property<Integer> batchSize = PropertyFactory.newInteger("batchSize").setRequired();
 
     @Override
     public void setupLayout() {
@@ -75,26 +83,33 @@ public class TJDBCInputProperties extends ComponentPropertiesImpl implements Com
         mainForm.addRow(compListWidget);
 
         mainForm.addRow(connection.getForm(Form.MAIN));
+        mainForm.addRow(tablename);
+
+        mainForm.addRow(dataAction);
+        mainForm.addRow(clearDataInTable);
+
         mainForm.addRow(schema.getForm(Form.REFERENCE));
 
-        mainForm.addRow(tablename);
-        mainForm.addRow(sql);
+        mainForm.addRow(dieOnError);
 
         mainForm.addRow(useDataSource);
         mainForm.addRow(dataSource);
 
         Form advancedForm = CommonUtils.addForm(this, Form.ADVANCED);
-        advancedForm.addRow(useCursor);
-        advancedForm.addRow(cursor);
-        advancedForm.addRow(trimStringOrCharColumns);
+        advancedForm.addRow(commitEvery);
+        advancedForm.addRow(debug);
+        advancedForm.addRow(useBatch);
+        advancedForm.addRow(batchSize);
     }
 
     @Override
     public void setupProperties() {
         super.setupProperties();
 
-        // TODO fix it later
-        // sql.setValue("select id, name from employee");
+        dataAction.setValue(DataAction.Insert);
+
+        commitEvery.setValue(10000);
+        batchSize.setValue(10000);
     }
 
     @Override
@@ -117,7 +132,8 @@ public class TJDBCInputProperties extends ComponentPropertiesImpl implements Com
         }
 
         if (form.getName().equals(Form.ADVANCED)) {
-            form.getWidget(cursor.getName()).setHidden(!useCursor.getValue());
+            form.getWidget(batchSize.getName()).setHidden(!useBatch.getValue());
+            form.getWidget(commitEvery.getName()).setHidden(useOtherConnection);
         }
     }
 
@@ -130,7 +146,7 @@ public class TJDBCInputProperties extends ComponentPropertiesImpl implements Com
         refreshLayout(getForm(Form.MAIN));
     }
 
-    public void afterUseCursor() {
+    public void afterUseBatch() {
         refreshLayout(getForm(Form.ADVANCED));
     }
 }

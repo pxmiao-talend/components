@@ -36,6 +36,7 @@ public class TJDBCConnectionDefinition extends AbstractComponentDefinition imple
         return TJDBCConnectionProperties.class;
     }
 
+    // TODO it is useful now?
     @SuppressWarnings("unchecked")
     @Override
     public Class<? extends ComponentProperties>[] getNestedCompatibleComponentPropertiesClass() {

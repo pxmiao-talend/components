@@ -10,43 +10,42 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.jdbc.tjdbcinput;
+package org.talend.components.jdbc.tjdbcoutput;
 
 import org.talend.components.api.Constants;
 import org.talend.components.api.component.AbstractComponentDefinition;
 import org.talend.components.api.component.ComponentDefinition;
-import org.talend.components.api.component.InputComponentDefinition;
-import org.talend.components.api.component.runtime.Source;
+import org.talend.components.api.component.OutputComponentDefinition;
+import org.talend.components.api.component.runtime.Sink;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.jdbc.tjdbcconnection.TJDBCConnectionProperties;
 import org.talend.daikon.properties.property.Property;
-import org.talend.daikon.properties.property.PropertyFactory;
 
 import aQute.bnd.annotation.component.Component;
 
-@Component(name = Constants.COMPONENT_BEAN_PREFIX + TJDBCInputDefinition.COMPONENT_NAME, provide = ComponentDefinition.class)
-public class TJDBCInputDefinition extends AbstractComponentDefinition implements InputComponentDefinition {
+@Component(name = Constants.COMPONENT_BEAN_PREFIX + TJDBCOutputDefinition.COMPONENT_NAME, provide = ComponentDefinition.class)
+public class TJDBCOutputDefinition extends AbstractComponentDefinition implements OutputComponentDefinition {
 
-    public static final String COMPONENT_NAME = "tJDBCInputNew";
+    public static final String COMPONENT_NAME = "tJDBCOutputNew";
 
-    public TJDBCInputDefinition() {
+    public TJDBCOutputDefinition() {
         super(COMPONENT_NAME);
     }
 
     @Override
     public Class<? extends ComponentProperties> getPropertyClass() {
-        return TJDBCInputProperties.class;
+        return TJDBCOutputProperties.class;
     }
 
     // TODO it is useful now?
     @SuppressWarnings("unchecked")
     @Override
     public Class<? extends ComponentProperties>[] getNestedCompatibleComponentPropertiesClass() {
-        return new Class[] { TJDBCConnectionProperties.class, TJDBCInputProperties.class };
+        return new Class[] { TJDBCConnectionProperties.class, TJDBCOutputProperties.class };
     }
 
     @Override
-    public Source getRuntime() {
+    public Sink getRuntime() {
         return null;
     }
 
@@ -65,11 +64,10 @@ public class TJDBCInputDefinition extends AbstractComponentDefinition implements
         return "components-jdbc";
     }
 
-    static final Property<String> RETURN_QUERY_PROP = PropertyFactory.newString(RETURN_ERROR_MESSAGE);
-
+    // TODO add more return properties
     @Override
     public Property[] getReturnProperties() {
-        return new Property[] { RETURN_ERROR_MESSAGE_PROP, RETURN_TOTAL_RECORD_COUNT_PROP, RETURN_QUERY_PROP };
+        return new Property[] { RETURN_ERROR_MESSAGE_PROP, RETURN_TOTAL_RECORD_COUNT_PROP };
     }
 
 }

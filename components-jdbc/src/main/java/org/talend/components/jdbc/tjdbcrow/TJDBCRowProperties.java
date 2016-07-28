@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.jdbc.tjdbcoutput;
+package org.talend.components.jdbc.tjdbcrow;
 
 import static org.talend.daikon.properties.presentation.Widget.widget;
 
@@ -26,9 +26,9 @@ import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 
-public class TJDBCOutputProperties extends ComponentPropertiesImpl implements ComponentReferencePropertiesEnclosing {
+public class TJDBCRowProperties extends ComponentPropertiesImpl implements ComponentReferencePropertiesEnclosing {
 
-    public TJDBCOutputProperties(String name) {
+    public TJDBCRowProperties(String name) {
         super(name);
     }
 
@@ -37,40 +37,30 @@ public class TJDBCOutputProperties extends ComponentPropertiesImpl implements Co
 
     public JDBCConnectionModule connection = new JDBCConnectionModule("connection");
 
-    public Property<String> tablename = PropertyFactory.newString("tablename").setRequired(true);
-
-    public enum DataAction {
-        Insert,
-        Update,
-        InsertOrUpdate,
-        UpdateOrInsert,
-        Delete
-    }
-
-    public Property<DataAction> dataAction = PropertyFactory.newEnum("dataAction", DataAction.class).setRequired();
-
-    public Property<Boolean> clearDataInTable = PropertyFactory.newBoolean("clearDataInTable").setRequired();
-
     public SchemaProperties schema = new SchemaProperties("schema");
 
-    public Property<Boolean> dieOnError = PropertyFactory.newBoolean("dieOnError").setRequired();
+    public Property<String> tablename = PropertyFactory.newString("tablename").setRequired(true);
+
+    // TODO query type
+
+    // TODO guess the query by the talend schema
+
+    // TODO guess the talend schema by the query
+
+    public Property<String> sql = PropertyFactory.newString("sql").setRequired(true);
 
     public Property<Boolean> useDataSource = PropertyFactory.newBoolean("useDataSource").setRequired();
 
     public Property<String> dataSource = PropertyFactory.newProperty("dataSource").setRequired();
 
+    public Property<Boolean> dieOnError = PropertyFactory.newBoolean("dieOnError").setRequired();
+
     // advanced
+    // TODO propagate the query recordset
+
+    // TODO use preparedstatment
+
     public Property<Integer> commitEvery = PropertyFactory.newInteger("commitEvery").setRequired();
-
-    // TODO additional columns
-
-    // TODO use field options and table
-
-    public Property<Boolean> debug = PropertyFactory.newBoolean("debug").setRequired();
-
-    public Property<Boolean> useBatch = PropertyFactory.newBoolean("useBatch").setRequired();
-
-    public Property<Integer> batchSize = PropertyFactory.newInteger("batchSize").setRequired();
 
     @Override
     public void setupLayout() {
@@ -83,33 +73,25 @@ public class TJDBCOutputProperties extends ComponentPropertiesImpl implements Co
         mainForm.addRow(compListWidget);
 
         mainForm.addRow(connection.getForm(Form.MAIN));
-        mainForm.addRow(tablename);
-
-        mainForm.addRow(dataAction);
-        mainForm.addRow(clearDataInTable);
-
         mainForm.addRow(schema.getForm(Form.REFERENCE));
 
-        mainForm.addRow(dieOnError);
+        mainForm.addRow(tablename);
+        mainForm.addRow(sql);
 
         mainForm.addRow(useDataSource);
         mainForm.addRow(dataSource);
 
+        mainForm.addRow(dieOnError);
+
         Form advancedForm = CommonUtils.addForm(this, Form.ADVANCED);
         advancedForm.addRow(commitEvery);
-        advancedForm.addRow(debug);
-        advancedForm.addRow(useBatch);
-        advancedForm.addRow(batchSize);
     }
 
     @Override
     public void setupProperties() {
         super.setupProperties();
 
-        dataAction.setValue(DataAction.Insert);
-
         commitEvery.setValue(10000);
-        batchSize.setValue(10000);
     }
 
     @Override
@@ -132,7 +114,6 @@ public class TJDBCOutputProperties extends ComponentPropertiesImpl implements Co
         }
 
         if (form.getName().equals(Form.ADVANCED)) {
-            form.getWidget(batchSize.getName()).setHidden(!useBatch.getValue());
             form.getWidget(commitEvery.getName()).setHidden(useOtherConnection);
         }
     }
@@ -147,7 +128,4 @@ public class TJDBCOutputProperties extends ComponentPropertiesImpl implements Co
         refreshLayout(getForm(Form.MAIN));
     }
 
-    public void afterUseBatch() {
-        refreshLayout(getForm(Form.ADVANCED));
-    }
 }

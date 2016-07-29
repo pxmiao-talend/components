@@ -5,6 +5,7 @@ import static javax.servlet.http.HttpServletResponse.SC_OK;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.SourceOrSink;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.properties.ComponentProperties;
+import org.talend.components.dropbox.tdropboxconnection.TDropboxConnectionProperties;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.i18n.GlobalI18N;
 import org.talend.daikon.i18n.I18nMessages;
@@ -34,37 +36,91 @@ import com.dropbox.core.v2.DbxClientV2;
  */
 public class DropboxSourceOrSink implements SourceOrSink {
 
-    private static final long serialVersionUID = 2527954241309305306L;
+    private static final long serialVersionUID = -2001358138539319311L;
 
     private static final Logger LOG = LoggerFactory.getLogger(DropboxSourceOrSink.class);
-    
+
+    /**
+     * Client identifier required by dropbox sdk API
+     */
     private static final String CLIENT_IDENTIFIER = "components-dropbox";
-    
+
+    /**
+     * User's locale
+     */
     private static final String LOCALE = Locale.getDefault().toString();
 
-    protected static final String DROPBOX_HOST = "https://www.dropbox.com/";
-    
+    /**
+     * Key for storing in {@link RuntimeContainer}
+     */
+    private static final String CONNECTION_KEY = "Connection";
+
+    /**
+     * Host of dropbox server
+     */
+    private static final String DROPBOX_HOST = "https://www.dropbox.com/";
+
+    /**
+     * Connection properties
+     */
     private String accessToken;
-    
+
     private boolean useProxy;
-    
+
     private String proxyHost;
-    
+
     private int proxyPort;
 
+    /**
+     * Provides i18ned messages
+     */
     private static final I18nMessages messages = GlobalI18N.getI18nMessageProvider().getI18nMessages(DropboxSourceOrSink.class);
 
+    /**
+     * Initializes this {@link SourceOrSink} with user specified properties
+     * Accepts {@link TDropboxConnectionProperties}
+     * 
+     * @param container {@link RuntimeContainer} instance
+     * @param properties user specified properties
+     */
     @Override
     public void initialize(RuntimeContainer container, ComponentProperties properties) {
-
+        if (properties instanceof TDropboxConnectionProperties) {
+            TDropboxConnectionProperties connectionProperties = (TDropboxConnectionProperties) properties;
+            accessToken = connectionProperties.accessToken.getValue();
+            useProxy = connectionProperties.useHttpProxy.getValue();
+            proxyHost = connectionProperties.proxyHost.getValue();
+            proxyPort = connectionProperties.proxyPort.getValue();
+        } else {
+            LOG.debug("Wrong properties type");
+        }
     }
 
+    /**
+     * Validates Dropbox server availability, creates connection and put it into {@link RuntimeContainer}
+     * 
+     * @param container {@link RuntimeContainer} instance
+     * @return {@link ValidationResult#OK} if server available and Error status otherwise
+     */
     @Override
     public ValidationResult validate(RuntimeContainer container) {
-        return null;
+        ValidationResult result = validateHost();
+        if (result.status == ValidationResult.Result.OK) {
+            DbxClientV2 dbxClient = connect();
+            if (container != null) {
+                String componentId = container.getCurrentComponentId();
+                container.setComponentData(componentId, CONNECTION_KEY, dbxClient);
+            }
+        }
+        return result;
     }
 
-    public ValidationResult validateHost() {
+    /**
+     * Checks connection to Dropbox server and returns {@link ValidationResult}
+     * 
+     * @return {@link ValidationResult#OK} if server available and Error status otherwise
+     */
+    protected ValidationResult validateHost() {
         HttpClient httpClient = new DefaultHttpClient();
         HttpHead httpHead = new HttpHead(DROPBOX_HOST);
         String errorMessage;
@@ -91,15 +147,18 @@ public class DropboxSourceOrSink implements SourceOrSink {
         return validationResult;
     }
 
-    public DbxClientV2 connect() {
+    /**
+     * Creates and returns Dropbox client using connection properties
+     * 
+     * @return Dropbox client
+     */
+    protected DbxClientV2 connect() {
         DbxRequestConfig.Builder configBuilder = DbxRequestConfig.newBuilder(CLIENT_IDENTIFIER);
         configBuilder.withUserLocale(LOCALE);
         if (useProxy) {
             InetSocketAddress socketAddress = new InetSocketAddress(proxyHost, proxyPort);
             Proxy proxy = new Proxy(Proxy.Type.HTTP, socketAddress);
-            StandardHttpRequestor.Config config = StandardHttpRequestor.Config.builder()
-                    .withNoConnectTimeout()
-                    .withProxy(proxy)
+            StandardHttpRequestor.Config config = StandardHttpRequestor.Config.builder().withNoConnectTimeout().withProxy(proxy)
                     .build();
             HttpRequestor httpRequestor = new StandardHttpRequestor(config);
             configBuilder.withHttpRequestor(httpRequestor);
@@ -109,13 +168,26 @@ public class DropboxSourceOrSink implements SourceOrSink {
         return client;
     }
 
+    /**
+     * Returns empty list, because Dropbox server doesn't any schema
+     * 
+     * @param container {@link RuntimeContainer} instance
+     * @return empty list
+     */
     @Override
-    public List<NamedThing> getSchemaNames(RuntimeContainer container) throws IOException {
-        return null;
+    public List<NamedThing> getSchemaNames(RuntimeContainer container) {
+        return Collections.EMPTY_LIST;
     }
 
+    /**
+     * Returns null, because there is no schema associated with this {@link SourceOrSink}
+     * 
+     * @param container {@link RuntimeContainer} instance
+     * @param schemaName name of schema
+     * @return null
+     */
     @Override
-    public Schema getEndpointSchema(RuntimeContainer container, String schemaName) throws IOException {
+    public Schema getEndpointSchema(RuntimeContainer container, String schemaName) {
         return null;
     }
 

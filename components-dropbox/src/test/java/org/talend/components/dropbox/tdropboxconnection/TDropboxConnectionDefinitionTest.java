@@ -15,10 +15,14 @@ package org.talend.components.dropbox.tdropboxconnection;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+import org.talend.components.api.component.runtime.SourceOrSink;
 import org.talend.components.dropbox.DropboxDefinition;
+import org.talend.components.dropbox.runtime.DropboxSourceOrSink;
 
 /**
  * Unit-tests for {@link TDropboxConnectionDefinition} class
@@ -80,11 +84,11 @@ public class TDropboxConnectionDefinitionTest {
     /**
      * Check {@link TDropboxConnectionDefinition#getRuntime()} returns instance of {@link JiraSource}
      */
-    //    @Test
-    //    public void testGetRuntime() {
-    //        TDropboxConnectionDefinition definition = new TDropboxConnectionDefinition();
-    //        SourceOrSink source = definition.getRuntime();
-    //        assertThat(source, is(instanceOf(DropboxSourceOrSink.class)));
-    //    }
+    @Test
+    public void testGetRuntime() {
+        TDropboxConnectionDefinition definition = new TDropboxConnectionDefinition();
+        SourceOrSink source = definition.getRuntime();
+        assertThat(source, is(instanceOf(DropboxSourceOrSink.class)));
+    }
 
 }

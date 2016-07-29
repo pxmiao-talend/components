@@ -18,6 +18,7 @@ import org.talend.components.api.component.EndpointComponentDefinition;
 import org.talend.components.api.component.runtime.SourceOrSink;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.dropbox.DropboxDefinition;
+import org.talend.components.dropbox.runtime.DropboxSourceOrSink;
 
 import aQute.bnd.annotation.component.Component;
 
@@ -40,12 +41,17 @@ public class TDropboxConnectionDefinition extends DropboxDefinition implements E
         super(COMPONENT_NAME);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SourceOrSink getRuntime() {
-        // TODO Auto-generated method stub
-        return null;
+        return new DropboxSourceOrSink();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Class<? extends ComponentProperties> getPropertyClass() {
         return TDropboxConnectionProperties.class;

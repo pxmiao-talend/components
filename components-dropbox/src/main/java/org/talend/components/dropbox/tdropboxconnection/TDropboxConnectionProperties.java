@@ -26,7 +26,7 @@ public class TDropboxConnectionProperties extends ComponentPropertiesImpl implem
      * Default value of Proxy Port property
      */
     private static final int DEFAULT_PORT = 8087;
-    
+
     /**
      * Referenced component property
      */
@@ -84,7 +84,7 @@ public class TDropboxConnectionProperties extends ComponentPropertiesImpl implem
         mainForm.addRow(useHttpProxy);
         mainForm.addRow(proxyHost);
         mainForm.addColumn(proxyPort);
-        
+
         Form refForm = new Form(this, Form.REFERENCE);
         Widget componentListWidget = widget(referencedComponent).setWidgetType(Widget.COMPONENT_REFERENCE_WIDGET_TYPE);
         refForm.addRow(componentListWidget);
@@ -129,6 +129,9 @@ public class TDropboxConnectionProperties extends ComponentPropertiesImpl implem
         refreshLayout(getForm(Form.MAIN));
     }
 
+    /**
+     * Refreshes layout after changes of referenced component property
+     */
     @Override
     public void afterReferencedComponent() {
         refreshLayout(getForm(Form.REFERENCE));

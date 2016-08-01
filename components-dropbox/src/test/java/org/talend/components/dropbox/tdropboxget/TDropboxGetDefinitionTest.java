@@ -77,17 +77,17 @@ public class TDropboxGetDefinitionTest {
         DropboxDefinition definition = new TDropboxGetDefinition();
         Class<?> propertyClass = definition.getPropertyClass();
         String canonicalName = propertyClass.getCanonicalName();
-        assertThat(canonicalName, equalTo("org.talend.components.dropbox.tdropboxconnection.TDropboxGetProperties"));
+        assertThat(canonicalName, equalTo("org.talend.components.dropbox.tdropboxget.TDropboxGetProperties"));
     }
 
     /**
      * Check {@link TDropboxGetDefinition#getRuntime()} returns instance of {@link JiraSource}
      */
-//    @Test
-//    public void testGetRuntime() {
-//        TDropboxGetDefinition definition = new TDropboxGetDefinition();
-//        Source source = definition.getRuntime();
-//        assertThat(source, is(instanceOf(DropboxSourceOrSink.class)));
-//    }
+    //    @Test
+    //    public void testGetRuntime() {
+    //        TDropboxGetDefinition definition = new TDropboxGetDefinition();
+    //        Source source = definition.getRuntime();
+    //        assertThat(source, is(instanceOf(DropboxSourceOrSink.class)));
+    //    }
 
 }

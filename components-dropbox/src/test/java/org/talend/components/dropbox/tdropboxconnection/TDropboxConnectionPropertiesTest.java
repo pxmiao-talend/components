@@ -19,7 +19,7 @@ import org.talend.daikon.properties.presentation.Widget;
  * Unit-tests for {@link TDropboxConnectionProperties} class
  */
 public class TDropboxConnectionPropertiesTest {
-    
+
     /**
      * Checks {@link TDropboxConnectionProperties#afterReferencedComponent()} hides Main form widget from Reference from, when componentId is specified
      */
@@ -105,9 +105,9 @@ public class TDropboxConnectionPropertiesTest {
         boolean proxyPortHidden = properties.getForm(Form.MAIN).getWidget("proxyPort").isHidden();
         assertTrue(proxyHostHidden);
         assertTrue(proxyPortHidden);
-        
+
         properties.refreshLayout(properties.getForm(Form.REFERENCE));
-        
+
         boolean mainFormHidden = properties.getForm(Form.REFERENCE).getWidget(properties.getName()).isHidden();
         assertFalse(mainFormHidden);
     }
@@ -164,10 +164,10 @@ public class TDropboxConnectionPropertiesTest {
         assertThat(proxyHostWidget, notNullValue());
         Widget proxyPortWidget = main.getWidget("proxyPort");
         assertThat(proxyPortWidget, notNullValue());
-        
+
         Collection<Widget> referenceWidgets = reference.getWidgets();
         assertThat(referenceWidgets, hasSize(2));
-        
+
         Widget componentListWidget = reference.getWidget("referencedComponent");
         assertThat(componentListWidget, notNullValue());
         Widget mainFormWidget = reference.getWidget(properties.getName());

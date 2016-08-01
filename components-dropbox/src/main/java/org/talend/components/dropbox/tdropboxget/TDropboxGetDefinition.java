@@ -24,8 +24,7 @@ import aQute.bnd.annotation.component.Component;
 /**
  * Dropbox get component definition
  */
-@Component(name = Constants.COMPONENT_BEAN_PREFIX
-        + TDropboxGetDefinition.COMPONENT_NAME, provide = ComponentDefinition.class)
+@Component(name = Constants.COMPONENT_BEAN_PREFIX + TDropboxGetDefinition.COMPONENT_NAME, provide = ComponentDefinition.class)
 public class TDropboxGetDefinition extends DropboxDefinition implements InputComponentDefinition {
 
     /**
@@ -53,7 +52,7 @@ public class TDropboxGetDefinition extends DropboxDefinition implements InputCom
      */
     @Override
     public Class<? extends ComponentProperties> getPropertyClass() {
-        return null;
+        return TDropboxGetProperties.class;
     }
 
 }

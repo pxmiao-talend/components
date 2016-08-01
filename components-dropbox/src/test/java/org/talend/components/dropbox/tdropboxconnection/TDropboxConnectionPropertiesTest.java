@@ -19,12 +19,27 @@ import org.talend.daikon.properties.presentation.Widget;
  * Unit-tests for {@link TDropboxConnectionProperties} class
  */
 public class TDropboxConnectionPropertiesTest {
+    
+    /**
+     * Checks {@link TDropboxConnectionProperties#afterReferencedComponent()} hides Main form widget from Reference from, when componentId is specified
+     */
+    @Test
+    public void testAfterReferencedComponent() {
+        TDropboxConnectionProperties properties = new TDropboxConnectionProperties("root");
+        properties.init();
+        properties.referencedComponent.componentInstanceId.setValue("tDropboxConnection_1");
+
+        properties.afterReferencedComponent();
+
+        boolean mainFormHidden = properties.getForm(Form.REFERENCE).getWidget(properties.getName()).isHidden();
+        assertTrue(mainFormHidden);
+    }
 
     /**
      * Checks {@link TDropboxConnectionProperties#afterUseHttpProxy()} shows Proxy Host and Proxy Port widgets if Use HTTP Proxy checkbox is checked
      */
     @Test
-    public void afterUseHttpProxyTrue() {
+    public void testAfterUseHttpProxyTrue() {
         TDropboxConnectionProperties properties = new TDropboxConnectionProperties("root");
         properties.init();
         properties.useHttpProxy.setValue(true);
@@ -41,7 +56,7 @@ public class TDropboxConnectionPropertiesTest {
      * Checks {@link TDropboxConnectionProperties#afterUseHttpProxy()} hides Proxy Host and Proxy Port widgets if Use HTTP Proxy checkbox is unchecked
      */
     @Test
-    public void afterUseHttpProxyFalse() {
+    public void testAfterUseHttpProxyFalse() {
         TDropboxConnectionProperties properties = new TDropboxConnectionProperties("root");
         properties.init();
         properties.useHttpProxy.setValue(false);
@@ -62,11 +77,13 @@ public class TDropboxConnectionPropertiesTest {
         TDropboxConnectionProperties properties = new TDropboxConnectionProperties("root");
         properties.setupProperties();
 
+        String referencedComponentType = properties.referencedComponent.componentType.getValue();
         String accessTokenValue = properties.accessToken.getValue();
         boolean useHttpProxyValue = properties.useHttpProxy.getValue();
         String proxyHostValue = properties.proxyHost.getValue();
         int proxyPortValue = properties.proxyPort.getValue();
 
+        assertThat(referencedComponentType, equalTo("tDropboxConnection"));
         assertThat(accessTokenValue, equalTo(""));
         assertFalse(useHttpProxyValue);
         assertThat(proxyHostValue, equalTo("127.0.0.1"));
@@ -75,6 +92,7 @@ public class TDropboxConnectionPropertiesTest {
 
     /**
      * Checks {@link TDropboxConnectionProperties#refreshLayout(Form)} hides Proxy Host and Proxy Port widgets in initial state
+     * and shows main form on reference form
      */
     @Test
     public void testRefreshLayoutMainInitial() {
@@ -87,6 +105,11 @@ public class TDropboxConnectionPropertiesTest {
         boolean proxyPortHidden = properties.getForm(Form.MAIN).getWidget("proxyPort").isHidden();
         assertTrue(proxyHostHidden);
         assertTrue(proxyPortHidden);
+        
+        properties.refreshLayout(properties.getForm(Form.REFERENCE));
+        
+        boolean mainFormHidden = properties.getForm(Form.REFERENCE).getWidget(properties.getName()).isHidden();
+        assertFalse(mainFormHidden);
     }
 
     /**
@@ -100,19 +123,23 @@ public class TDropboxConnectionPropertiesTest {
 
         boolean proxyHostExpected = properties.getForm(Form.MAIN).getWidget("proxyHost").isHidden();
         boolean proxyPortExpected = properties.getForm(Form.MAIN).getWidget("proxyPort").isHidden();
+        boolean mainFormWidgetExpected = properties.getForm(Form.REFERENCE).getWidget(properties.getName()).isHidden();
 
         properties.refreshLayout(new Form(properties, "NotMain"));
 
         boolean proxyHostActual = properties.getForm(Form.MAIN).getWidget("proxyHost").isHidden();
         boolean proxyPortActual = properties.getForm(Form.MAIN).getWidget("proxyPort").isHidden();
+        boolean mainFormWidgetActual = properties.getForm(Form.REFERENCE).getWidget(properties.getName()).isHidden();
 
         assertEquals(proxyHostExpected, proxyHostActual);
         assertEquals(proxyPortExpected, proxyPortActual);
+        assertEquals(mainFormWidgetExpected, mainFormWidgetActual);
     }
 
     /**
-     * Checks {@link TDropboxConnectionProperties#setupLayout()} creates 1 Main forms,
-     * which contains 4 widgets
+     * Checks {@link TDropboxConnectionProperties#setupLayout()} creates 2 forms: Main and Reference,
+     * Main form should contain 4 widgets: accessToken, useHttpProxy, proxyHost, proxyPort;
+     * Reference form should contain 2 widgets: componentList, mainForm
      */
     @Test
     public void testSetupLayout() {
@@ -123,6 +150,8 @@ public class TDropboxConnectionPropertiesTest {
         assertThat(main, notNullValue());
         Form advanced = properties.getForm(Form.ADVANCED);
         assertThat(advanced, nullValue());
+        Form reference = properties.getForm(Form.REFERENCE);
+        assertThat(reference, notNullValue());
 
         Collection<Widget> mainWidgets = main.getWidgets();
         assertThat(mainWidgets, hasSize(4));
@@ -135,6 +164,14 @@ public class TDropboxConnectionPropertiesTest {
         assertThat(proxyHostWidget, notNullValue());
         Widget proxyPortWidget = main.getWidget("proxyPort");
         assertThat(proxyPortWidget, notNullValue());
+        
+        Collection<Widget> referenceWidgets = reference.getWidgets();
+        assertThat(referenceWidgets, hasSize(2));
+        
+        Widget componentListWidget = reference.getWidget("referencedComponent");
+        assertThat(componentListWidget, notNullValue());
+        Widget mainFormWidget = reference.getWidget(properties.getName());
+        assertThat(mainFormWidget, notNullValue());
     }
 
 }

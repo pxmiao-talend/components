@@ -1,10 +1,14 @@
 package org.talend.components.dropbox.tdropboxconnection;
 
+import static org.talend.daikon.properties.presentation.Widget.widget;
+
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.api.properties.ComponentPropertiesImpl;
+import org.talend.components.api.properties.ComponentReferenceProperties;
 import org.talend.components.api.properties.ComponentReferencePropertiesEnclosing;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.presentation.Form;
+import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 
@@ -22,6 +26,11 @@ public class TDropboxConnectionProperties extends ComponentPropertiesImpl implem
      * Default value of Proxy Port property
      */
     private static final int DEFAULT_PORT = 8087;
+    
+    /**
+     * Referenced component property
+     */
+    public ComponentReferenceProperties referencedComponent = new ComponentReferenceProperties("referencedComponent", this);
 
     /**
      * Stores value of Dropbox Access Token 
@@ -58,6 +67,7 @@ public class TDropboxConnectionProperties extends ComponentPropertiesImpl implem
     @Override
     public void setupProperties() {
         super.setupProperties();
+        referencedComponent.componentType.setValue(TDropboxConnectionDefinition.COMPONENT_NAME);
         accessToken.setValue("");
         proxyHost.setValue(DEFAULT_HOST);
         proxyPort.setValue(DEFAULT_PORT);
@@ -74,6 +84,11 @@ public class TDropboxConnectionProperties extends ComponentPropertiesImpl implem
         mainForm.addRow(useHttpProxy);
         mainForm.addRow(proxyHost);
         mainForm.addColumn(proxyPort);
+        
+        Form refForm = new Form(this, Form.REFERENCE);
+        Widget componentListWidget = widget(referencedComponent).setWidgetType(Widget.COMPONENT_REFERENCE_WIDGET_TYPE);
+        refForm.addRow(componentListWidget);
+        refForm.addRow(mainForm);
     }
 
     /**
@@ -91,6 +106,20 @@ public class TDropboxConnectionProperties extends ComponentPropertiesImpl implem
                 form.getWidget(proxyPort.getName()).setHidden(true);
             }
         }
+
+        if (form.getName().equals(Form.REFERENCE)) {
+            String refComponentIdValue = referencedComponent.componentInstanceId.getValue();
+            if (refComponentIdValue != null && refComponentIdValue.startsWith(TDropboxConnectionDefinition.COMPONENT_NAME)) {
+                /*
+                 * Main form widget is stored in widgetMap under properties.getName() key. Generally, this name is "root"
+                 * See Form.getWidgetContentName() method for details
+                 * that's why this.getName() is used here
+                 */
+                form.getWidget(getName()).setHidden(true);
+            } else {
+                form.getWidget(getName()).setHidden(false);
+            }
+        }
     }
 
     /**
@@ -102,7 +131,7 @@ public class TDropboxConnectionProperties extends ComponentPropertiesImpl implem
 
     @Override
     public void afterReferencedComponent() {
-        // TODO Auto-generated method stub
+        refreshLayout(getForm(Form.REFERENCE));
     }
 
 }

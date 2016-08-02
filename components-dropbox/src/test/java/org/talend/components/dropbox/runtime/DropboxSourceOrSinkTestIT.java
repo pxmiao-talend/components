@@ -1,13 +1,12 @@
 package org.talend.components.dropbox.runtime;
 
 import org.junit.Test;
-import org.talend.components.dropbox.tdropboxconnection.TDropboxConnectionProperties;
 import org.talend.daikon.properties.ValidationResult;
 
 import static org.junit.Assert.assertEquals;
 
 /**
- * Integration tests for {@link TDropboxConnectionProperties} class
+ * Integration tests for {@link DropboxSourceOrSink} class
  * These tests require Internet connection
  */
 public class DropboxSourceOrSinkTestIT {

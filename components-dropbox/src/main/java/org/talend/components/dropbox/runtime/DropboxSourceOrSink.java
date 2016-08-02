@@ -53,7 +53,7 @@ public class DropboxSourceOrSink implements SourceOrSink {
     /**
      * Key for storing in {@link RuntimeContainer}
      */
-    private static final String CONNECTION_KEY = "Connection";
+    protected static final String CONNECTION_KEY = "Connection";
 
     /**
      * Host of dropbox server

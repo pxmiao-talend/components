@@ -27,13 +27,13 @@ import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.AbstractBoundedReader;
 import org.talend.components.api.component.runtime.BoundedSource;
 import org.talend.components.api.container.RuntimeContainer;
-import org.talend.components.jdbc.DBInputProperties;
+import org.talend.components.jdbc.tjdbcinput.TJDBCInputProperties;
 
-public class DBReader extends AbstractBoundedReader<IndexedRecord> {
+public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DBReader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JDBCInputReader.class);
 
-    protected DBInputProperties properties;
+    protected TJDBCInputProperties properties;
 
     protected RuntimeContainer adaptor;
 
@@ -41,20 +41,14 @@ public class DBReader extends AbstractBoundedReader<IndexedRecord> {
 
     protected ResultSet resultSet;
 
-    protected DBTemplate dbTemplate;
-
-    private transient ResultSetAdapterFactory factory;
+    private transient JDBCResultSetAdapterFactory factory;
 
     private transient Schema querySchema;
 
-    public DBReader(RuntimeContainer adaptor, DBSource source, DBInputProperties props) {
+    public JDBCInputReader(RuntimeContainer adaptor, JDBCSource source, TJDBCInputProperties props) {
         super(source);
         this.adaptor = adaptor;
         this.properties = props;
-    }
-
-    public void setDBTemplate(DBTemplate template) {
-        this.dbTemplate = template;
     }
 
     private Schema getSchema() throws IOException {
@@ -64,9 +58,9 @@ public class DBReader extends AbstractBoundedReader<IndexedRecord> {
         return querySchema;
     }
 
-    private ResultSetAdapterFactory getFactory() throws IOException {
+    private JDBCResultSetAdapterFactory getFactory() throws IOException {
         if (null == factory) {
-            factory = new ResultSetAdapterFactory();
+            factory = new JDBCResultSetAdapterFactory();
             factory.setSchema(getSchema());
         }
         return factory;
@@ -75,7 +69,7 @@ public class DBReader extends AbstractBoundedReader<IndexedRecord> {
     @Override
     public boolean start() throws IOException {
         try {
-            conn = dbTemplate.connect(properties.getConnectionProperties());
+            conn = JDBCTemplate.connect(properties.getJDBCConnectionModule());
             Statement statement = conn.createStatement();
             resultSet = statement.executeQuery(properties.sql.getStringValue());
             return resultSet.next();

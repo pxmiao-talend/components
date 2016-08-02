@@ -10,7 +10,7 @@ import org.talend.daikon.avro.converter.AvroConverter;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
 import org.talend.daikon.avro.converter.IndexedRecordConverter.UnmodifiableAdapterException;
 
-public class ResultSetAdapterFactory implements IndexedRecordConverter<ResultSet, IndexedRecord> {
+public class JDBCResultSetAdapterFactory implements IndexedRecordConverter<ResultSet, IndexedRecord> {
 
     private Schema schema;
 
@@ -55,7 +55,7 @@ public class ResultSetAdapterFactory implements IndexedRecordConverter<ResultSet
 
         @Override
         public Schema getSchema() {
-            return ResultSetAdapterFactory.this.getSchema();
+            return JDBCResultSetAdapterFactory.this.getSchema();
         }
 
         @Override

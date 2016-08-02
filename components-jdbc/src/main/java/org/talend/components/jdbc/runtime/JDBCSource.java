@@ -1,20 +1,46 @@
 package org.talend.components.jdbc.runtime;
 
-import org.talend.daikon.avro.AvroRegistry;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.talend.components.api.component.runtime.BoundedReader;
+import org.talend.components.api.component.runtime.BoundedSource;
+import org.talend.components.api.container.RuntimeContainer;
+import org.talend.components.jdbc.tjdbcinput.TJDBCInputProperties;
 
-public class JDBCSource extends DBSource {
+public class JDBCSource extends JDBCSourceOrSink implements BoundedSource {
 
-    JDBCTemplate template = new JDBCTemplate();//no state object
-    
+    private static final long serialVersionUID = -9111994542816954024L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(JDBCSource.class);
+
     @Override
-    protected DBTemplate getDBTemplate() {
-        return template;
+    public BoundedReader createReader(RuntimeContainer adaptor) {
+        if (properties instanceof TJDBCInputProperties) {
+            JDBCInputReader reader = new JDBCInputReader(adaptor, this, (TJDBCInputProperties) properties);
+            return reader;
+        }
+        return null;
     }
 
     @Override
-    protected AvroRegistry getAvroRegistry() {
-        return JDBCAvroRegistry.get();
+    public List<? extends BoundedSource> splitIntoBundles(long desiredBundleSizeBytes, RuntimeContainer adaptor)
+            throws Exception {
+        List<BoundedSource> list = new ArrayList<>();
+        list.add(this);
+        return list;
+    }
+
+    @Override
+    public long getEstimatedSizeBytes(RuntimeContainer adaptor) {
+        return 0;
+    }
+
+    @Override
+    public boolean producesSortedKeys(RuntimeContainer adaptor) {
+        return false;
     }
 
 }

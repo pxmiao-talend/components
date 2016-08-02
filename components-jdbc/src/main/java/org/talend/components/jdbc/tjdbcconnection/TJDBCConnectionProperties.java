@@ -14,12 +14,13 @@ package org.talend.components.jdbc.tjdbcconnection;
 
 import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.jdbc.CommonUtils;
+import org.talend.components.jdbc.JDBCConnectionInfoProvider;
 import org.talend.components.jdbc.module.JDBCConnectionModule;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 
-public class TJDBCConnectionProperties extends ComponentPropertiesImpl {
+public class TJDBCConnectionProperties extends ComponentPropertiesImpl implements JDBCConnectionInfoProvider {
 
     public TJDBCConnectionProperties(String name) {
         super(name);
@@ -109,6 +110,11 @@ public class TJDBCConnectionProperties extends ComponentPropertiesImpl {
                 form.getWidget(sharedConnectionName.getName()).setHidden(!shareConnection.getValue());
             }
         }
+    }
+
+    @Override
+    public JDBCConnectionModule getJDBCConnectionModule() {
+        return connection;
     }
 
 }

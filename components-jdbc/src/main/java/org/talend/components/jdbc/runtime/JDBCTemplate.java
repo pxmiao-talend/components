@@ -1,34 +1,16 @@
 package org.talend.components.jdbc.runtime;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
-import org.talend.components.jdbc.DBConnectionProperties;
+import org.talend.components.jdbc.module.JDBCConnectionModule;
 
-public class JDBCTemplate implements DBTemplate {
+public class JDBCTemplate {
 
-    @Override
-    public Connection connect(DBConnectionProperties properties) throws Exception {
-        String host = properties.host.getStringValue();
-        String port = properties.port.getStringValue();
-        String dbname = properties.database.getStringValue();
-        String parameters = properties.jdbcparameter.getStringValue();
-
-        String username = properties.userPassword.userId.getStringValue();
-        String password = properties.userPassword.password.getStringValue();
-
-        boolean autocommit = "true".equalsIgnoreCase(properties.autocommit.getStringValue());
-
-        StringBuilder url = new StringBuilder();
-        url.append("jdbc:jdbc:thin:@").append(host).append(":").append(port).append(":").append(dbname);
-        if (parameters != null) {
-            url.append("?").append(parameters);
-        }
-
-        java.lang.Class.forName("jdbc.jdbc.JDBCDriver");
-
-        Connection conn = java.sql.DriverManager.getConnection(url.toString(), username, password);
-        conn.setAutoCommit(autocommit);
-
+    public static Connection connect(JDBCConnectionModule properties) throws ClassNotFoundException, SQLException {
+        java.lang.Class.forName(properties.driverClass.getValue());
+        Connection conn = java.sql.DriverManager.getConnection(properties.jdbcUrl.getValue(),
+                properties.userPassword.userId.getValue(), properties.userPassword.password.getValue());
         return conn;
     }
 

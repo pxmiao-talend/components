@@ -19,6 +19,7 @@ import org.talend.components.api.properties.ComponentReferenceProperties;
 import org.talend.components.api.properties.ComponentReferencePropertiesEnclosing;
 import org.talend.components.common.SchemaProperties;
 import org.talend.components.jdbc.CommonUtils;
+import org.talend.components.jdbc.JDBCConnectionInfoProvider;
 import org.talend.components.jdbc.module.JDBCConnectionModule;
 import org.talend.components.jdbc.tjdbcconnection.TJDBCConnectionDefinition;
 import org.talend.daikon.properties.presentation.Form;
@@ -26,7 +27,8 @@ import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 
-public class TJDBCOutputProperties extends ComponentPropertiesImpl implements ComponentReferencePropertiesEnclosing {
+public class TJDBCOutputProperties extends ComponentPropertiesImpl
+        implements ComponentReferencePropertiesEnclosing, JDBCConnectionInfoProvider {
 
     public TJDBCOutputProperties(String name) {
         super(name);
@@ -149,5 +151,10 @@ public class TJDBCOutputProperties extends ComponentPropertiesImpl implements Co
 
     public void afterUseBatch() {
         refreshLayout(getForm(Form.ADVANCED));
+    }
+
+    @Override
+    public JDBCConnectionModule getJDBCConnectionModule() {
+        return connection;
     }
 }

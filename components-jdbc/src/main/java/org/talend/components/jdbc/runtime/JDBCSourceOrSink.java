@@ -27,22 +27,23 @@ import org.talend.components.api.component.runtime.SourceOrSink;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentProperties;
-import org.talend.components.jdbc.DBConnectionProperties;
-import org.talend.components.jdbc.DBProvideConnectionProperties;
+import org.talend.components.jdbc.JDBCConnectionInfoProvider;
+import org.talend.components.jdbc.module.JDBCConnectionModule;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.SimpleNamedThing;
-import org.talend.daikon.avro.AvroRegistry;
 import org.talend.daikon.properties.ValidationResult;
 
-public abstract class DBSourceOrSink implements SourceOrSink {
+public class JDBCSourceOrSink implements SourceOrSink {
 
-    private transient static final Logger LOG = LoggerFactory.getLogger(DBSourceOrSink.class);
+    private static final long serialVersionUID = -1730391293657968628L;
 
-    protected DBProvideConnectionProperties properties;
+    private transient static final Logger LOG = LoggerFactory.getLogger(JDBCSourceOrSink.class);
+
+    protected JDBCConnectionInfoProvider properties;
 
     @Override
     public void initialize(RuntimeContainer adaptor, ComponentProperties properties) {
-        this.properties = (DBProvideConnectionProperties) properties;
+        this.properties = (JDBCConnectionInfoProvider) properties;
     }
 
     private static ValidationResult fillValidationResult(ValidationResult vr, Exception ex) {
@@ -59,8 +60,8 @@ public abstract class DBSourceOrSink implements SourceOrSink {
         ValidationResult vr = new ValidationResult();
         Connection conn = null;
         try {
-            DBConnectionProperties dbprops = properties.getConnectionProperties();
-            conn = getDBTemplate().connect(dbprops);
+            JDBCConnectionModule connectionInfo = properties.getJDBCConnectionModule();
+            conn = JDBCTemplate.connect(connectionInfo);
         } catch (Exception ex) {
             fillValidationResult(vr, ex);
         } finally {
@@ -73,19 +74,15 @@ public abstract class DBSourceOrSink implements SourceOrSink {
         return vr;
     }
 
-    abstract protected DBTemplate getDBTemplate();
-
-    abstract protected AvroRegistry getAvroRegistry();
-
     @Override
     public List<NamedThing> getSchemaNames(RuntimeContainer adaptor) throws IOException {
         List<NamedThing> result = new ArrayList<>();
         Connection conn = null;
         try {
-            DBConnectionProperties dbprops = properties.getConnectionProperties();
-            conn = getDBTemplate().connect(dbprops);
+            JDBCConnectionModule connectionInfo = properties.getJDBCConnectionModule();
+            conn = JDBCTemplate.connect(connectionInfo);
             DatabaseMetaData metadata = conn.getMetaData();
-            ResultSet resultset = metadata.getTables(null, dbprops.dbschema.getStringValue(), null, new String[] { "TABLE" });
+            ResultSet resultset = metadata.getTables(null, null, null, new String[] { "TABLE" });
             while (resultset.next()) {
                 String tablename = resultset.getString("TABLE_NAME");
                 result.add(new SimpleNamedThing(tablename, tablename));
@@ -103,15 +100,15 @@ public abstract class DBSourceOrSink implements SourceOrSink {
     }
 
     @Override
-    public Schema getEndpointSchema(RuntimeContainer adaptor, String schemaName) throws IOException {
+    public Schema getEndpointSchema(RuntimeContainer adaptor, String tableName) throws IOException {
         Connection conn = null;
 
         try {
-            DBConnectionProperties dbprops = properties.getConnectionProperties();
-            conn = getDBTemplate().connect(dbprops);
+            JDBCConnectionModule connectionInfo = properties.getJDBCConnectionModule();
+            conn = JDBCTemplate.connect(connectionInfo);
             DatabaseMetaData metadata = conn.getMetaData();
-            ResultSet resultset = metadata.getColumns(null, dbprops.dbschema.getStringValue(), schemaName, null);
-            return getAvroRegistry().inferSchema(resultset);
+            ResultSet resultset = metadata.getColumns(null, null, tableName, null);
+            return JDBCAvroRegistry.get().inferSchema(resultset);
         } catch (Exception e) {
             throw new ComponentException(e);
         } finally {

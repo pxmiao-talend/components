@@ -18,6 +18,7 @@ import org.talend.components.api.component.ComponentDefinition;
 import org.talend.components.api.component.EndpointComponentDefinition;
 import org.talend.components.api.component.runtime.SourceOrSink;
 import org.talend.components.api.properties.ComponentProperties;
+import org.talend.components.jdbc.runtime.JDBCSourceOrSink;
 import org.talend.daikon.properties.property.Property;
 
 import aQute.bnd.annotation.component.Component;
@@ -65,8 +66,7 @@ public class TJDBCConnectionDefinition extends AbstractComponentDefinition imple
 
     @Override
     public SourceOrSink getRuntime() {
-        // TODO Auto-generated method stub
-        return null;
+        return new JDBCSourceOrSink();
     }
 
     @Override

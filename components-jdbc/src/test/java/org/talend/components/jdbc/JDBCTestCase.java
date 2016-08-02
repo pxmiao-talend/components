@@ -49,8 +49,6 @@ public class JDBCTestCase {
 
     private static BoundedSource source;
 
-    private static JDBCTemplate template = new JDBCTemplate();
-
     @BeforeClass
     public static void init() throws Exception {
         java.util.Properties props = new java.util.Properties();
@@ -61,7 +59,7 @@ public class JDBCTestCase {
 
         initSource(props);
 
-        Connection conn = template.connect(db_input_properties.getConnectionProperties());
+        Connection conn = JDBCTemplate.connect(db_input_properties.getJDBCConnectionModule());
 
         try {
             dropTestTable(conn);
@@ -75,7 +73,7 @@ public class JDBCTestCase {
     }
 
     private static void initSource(java.util.Properties props) {
-        ComponentDefinition definition = new TJDBCInputDefinition(null);
+        ComponentDefinition definition = new TJDBCInputDefinition();
         TJDBCInputProperties properties = (TJDBCInputProperties) definition.createRuntimeProperties();
 
         properties.connection.setValue("host", props.getProperty("host"));
@@ -100,7 +98,6 @@ public class JDBCTestCase {
     public static void destory() throws Exception {
         db_input_properties = null;
         source = null;
-        template = null;
     }
 
     @Test

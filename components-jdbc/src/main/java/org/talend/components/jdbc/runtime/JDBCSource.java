@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.BoundedReader;
 import org.talend.components.api.component.runtime.BoundedSource;
 import org.talend.components.api.container.RuntimeContainer;
+import org.talend.components.jdbc.runtime.reader.JDBCInputReader;
 import org.talend.components.jdbc.tjdbcinput.TJDBCInputProperties;
 
 public class JDBCSource extends JDBCSourceOrSink implements BoundedSource {

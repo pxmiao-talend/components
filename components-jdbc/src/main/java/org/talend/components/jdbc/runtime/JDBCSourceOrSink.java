@@ -28,9 +28,10 @@ import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.jdbc.ComponentConstants;
-import org.talend.components.jdbc.JDBCConnectionInfoProvider;
+import org.talend.components.jdbc.JDBCConnectionInfoProperties;
 import org.talend.components.jdbc.ReferAnotherComponent;
 import org.talend.components.jdbc.module.JDBCConnectionModule;
+import org.talend.components.jdbc.runtime.type.JDBCAvroRegistry;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.SimpleNamedThing;
 import org.talend.daikon.properties.ValidationResult;
@@ -41,11 +42,11 @@ public class JDBCSourceOrSink implements SourceOrSink {
 
     private transient static final Logger LOG = LoggerFactory.getLogger(JDBCSourceOrSink.class);
 
-    protected JDBCConnectionInfoProvider properties;
+    public JDBCConnectionInfoProperties properties;
 
     @Override
     public void initialize(RuntimeContainer runtime, ComponentProperties properties) {
-        this.properties = (JDBCConnectionInfoProvider) properties;
+        this.properties = (JDBCConnectionInfoProperties) properties;
     }
 
     private static ValidationResult fillValidationResult(ValidationResult vr, Exception ex) {
@@ -118,7 +119,7 @@ public class JDBCSourceOrSink implements SourceOrSink {
         }
     }
 
-    protected Connection connect(RuntimeContainer runtime) throws ClassNotFoundException, SQLException {
+    public Connection connect(RuntimeContainer runtime) throws ClassNotFoundException, SQLException {
         if (properties instanceof ReferAnotherComponent) {
             String refComponentId = ((ReferAnotherComponent) properties).getReferencedComponentId();
             // using another component's connection

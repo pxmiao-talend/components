@@ -1,16 +1,14 @@
-package org.talend.components.jdbc.runtime;
+package org.talend.components.jdbc.runtime.type;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
 import org.apache.avro.generic.IndexedRecord;
 import org.talend.daikon.avro.converter.AvroConverter;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
-import org.talend.daikon.avro.converter.IndexedRecordConverter.UnmodifiableAdapterException;
 
-public class JDBCResultSetAdapterFactory implements IndexedRecordConverter<ResultSet, IndexedRecord> {
+public class JDBCResultSetIndexedRecordConverter implements IndexedRecordConverter<ResultSet, IndexedRecord> {
 
     private Schema schema;
 
@@ -55,7 +53,7 @@ public class JDBCResultSetAdapterFactory implements IndexedRecordConverter<Resul
 
         @Override
         public Schema getSchema() {
-            return JDBCResultSetAdapterFactory.this.getSchema();
+            return JDBCResultSetIndexedRecordConverter.this.getSchema();
         }
 
         @Override
@@ -68,21 +66,15 @@ public class JDBCResultSetAdapterFactory implements IndexedRecordConverter<Resul
         public Object get(int i) {
             if (names == null) {
                 names = new String[getSchema().getFields().size()];
-                // fieldConverter = new AvroConverter[names.length];
+                fieldConverter = new AvroConverter[names.length];
                 for (int j = 0; j < names.length; j++) {
                     Field f = getSchema().getFields().get(j);
                     names[j] = f.name();
-                    // fieldConverter[j] = JDBCAvroRegistry.get().getConverterFromString(f);
+                    fieldConverter[j] = JDBCAvroRegistry.get().getConverter(f);
                 }
             }
 
-            try {
-                return value.getObject((names[i]));
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-
-            return null;
+            return fieldConverter[i].convertToAvro(value);
         }
     }
 }

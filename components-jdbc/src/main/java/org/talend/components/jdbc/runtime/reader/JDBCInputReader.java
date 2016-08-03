@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.jdbc.runtime;
+package org.talend.components.jdbc.runtime.reader;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -27,6 +27,9 @@ import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.AbstractBoundedReader;
 import org.talend.components.api.component.runtime.BoundedSource;
 import org.talend.components.api.container.RuntimeContainer;
+import org.talend.components.jdbc.runtime.JDBCSource;
+import org.talend.components.jdbc.runtime.JDBCTemplate;
+import org.talend.components.jdbc.runtime.type.JDBCResultSetIndexedRecordConverter;
 import org.talend.components.jdbc.tjdbcinput.TJDBCInputProperties;
 
 public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
@@ -41,7 +44,7 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
 
     protected ResultSet resultSet;
 
-    private transient JDBCResultSetAdapterFactory factory;
+    private transient JDBCResultSetIndexedRecordConverter factory;
 
     private transient Schema querySchema;
 
@@ -58,9 +61,9 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
         return querySchema;
     }
 
-    private JDBCResultSetAdapterFactory getFactory() throws IOException {
+    private JDBCResultSetIndexedRecordConverter getFactory() throws IOException {
         if (null == factory) {
-            factory = new JDBCResultSetAdapterFactory();
+            factory = new JDBCResultSetIndexedRecordConverter();
             factory.setSchema(getSchema());
         }
         return factory;

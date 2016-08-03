@@ -14,22 +14,32 @@ package org.talend.components.jdbc.tjdbcoutput;
 
 import static org.talend.daikon.properties.presentation.Widget.widget;
 
-import org.talend.components.api.properties.ComponentPropertiesImpl;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.avro.Schema;
+import org.talend.components.api.component.Connector;
+import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.components.api.properties.ComponentReferenceProperties;
 import org.talend.components.api.properties.ComponentReferencePropertiesEnclosing;
+import org.talend.components.common.FixedConnectorsComponentProperties;
 import org.talend.components.common.SchemaProperties;
 import org.talend.components.jdbc.CommonUtils;
-import org.talend.components.jdbc.JDBCConnectionInfoProvider;
+import org.talend.components.jdbc.JDBCConnectionInfoProperties;
 import org.talend.components.jdbc.ReferAnotherComponent;
 import org.talend.components.jdbc.module.JDBCConnectionModule;
 import org.talend.components.jdbc.tjdbcconnection.TJDBCConnectionDefinition;
+import org.talend.daikon.avro.SchemaConstants;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 
-public class TJDBCOutputProperties extends ComponentPropertiesImpl
-        implements ComponentReferencePropertiesEnclosing, JDBCConnectionInfoProvider, ReferAnotherComponent {
+public class TJDBCOutputProperties extends FixedConnectorsComponentProperties
+        implements ComponentReferencePropertiesEnclosing, JDBCConnectionInfoProperties, ReferAnotherComponent {
 
     public TJDBCOutputProperties(String name) {
         super(name);
@@ -43,18 +53,34 @@ public class TJDBCOutputProperties extends ComponentPropertiesImpl
     public Property<String> tablename = PropertyFactory.newString("tablename").setRequired(true);
 
     public enum DataAction {
-        Insert,
-        Update,
-        InsertOrUpdate,
-        UpdateOrInsert,
-        Delete
+        INSERT,
+        UPDATE,
+        INSERTORUPDATE,
+        UPDATEORINSERT,
+        DELETE
     }
 
     public Property<DataAction> dataAction = PropertyFactory.newEnum("dataAction", DataAction.class).setRequired();
 
     public Property<Boolean> clearDataInTable = PropertyFactory.newBoolean("clearDataInTable").setRequired();
 
-    public SchemaProperties schema = new SchemaProperties("schema");
+    public transient PropertyPathConnector MAIN_CONNECTOR = new PropertyPathConnector(Connector.MAIN_NAME, "main");
+
+    public transient PropertyPathConnector FLOW_CONNECTOR = new PropertyPathConnector(Connector.MAIN_NAME, "schemaFlow");
+
+    public transient PropertyPathConnector REJECT_CONNECTOR = new PropertyPathConnector(Connector.REJECT_NAME, "schemaReject");
+
+    public SchemaProperties main = new SchemaProperties("main") {
+
+        public void afterSchema() {
+            updateOutputSchemas();
+        }
+
+    };
+
+    public SchemaProperties schemaFlow = new SchemaProperties("schemaFlow");
+
+    public SchemaProperties schemaReject = new SchemaProperties("schemaReject");
 
     public Property<Boolean> dieOnError = PropertyFactory.newBoolean("dieOnError").setRequired();
 
@@ -75,6 +101,54 @@ public class TJDBCOutputProperties extends ComponentPropertiesImpl
 
     public Property<Integer> batchSize = PropertyFactory.newInteger("batchSize").setRequired();
 
+    private void updateOutputSchemas() {
+        Schema inputSchema = main.schema.getValue();
+
+        schemaFlow.schema.setValue(inputSchema);
+
+        final List<Schema.Field> additionalRejectFields = new ArrayList<Schema.Field>();
+
+        Schema.Field field = new Schema.Field("errorCode", Schema.create(Schema.Type.STRING), null, (Object) null);
+        field.addProp(SchemaConstants.TALEND_IS_LOCKED, "false");
+        field.addProp(SchemaConstants.TALEND_FIELD_GENERATED, "true");
+        field.addProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH, "255");
+        additionalRejectFields.add(field);
+
+        field = new Schema.Field("errorMessage", Schema.create(Schema.Type.STRING), null, (Object) null);
+        field.addProp(SchemaConstants.TALEND_IS_LOCKED, "false");
+        field.addProp(SchemaConstants.TALEND_FIELD_GENERATED, "true");
+        field.addProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH, "255");
+        additionalRejectFields.add(field);
+
+        Schema rejectSchema = newSchema(inputSchema, "rejectOutput", additionalRejectFields);
+
+        schemaReject.schema.setValue(rejectSchema);
+    }
+
+    private Schema newSchema(Schema metadataSchema, String newSchemaName, List<Schema.Field> moreFields) {
+        Schema newSchema = Schema.createRecord(newSchemaName, metadataSchema.getDoc(), metadataSchema.getNamespace(),
+                metadataSchema.isError());
+
+        List<Schema.Field> copyFieldList = new ArrayList<>();
+        for (Schema.Field se : metadataSchema.getFields()) {
+            Schema.Field field = new Schema.Field(se.name(), se.schema(), se.doc(), se.defaultVal(), se.order());
+            field.getObjectProps().putAll(se.getObjectProps());
+            for (Map.Entry<String, Object> entry : se.getObjectProps().entrySet()) {
+                field.addProp(entry.getKey(), entry.getValue());
+            }
+            copyFieldList.add(field);
+        }
+
+        copyFieldList.addAll(moreFields);
+
+        newSchema.setFields(copyFieldList);
+        for (Map.Entry<String, Object> entry : metadataSchema.getObjectProps().entrySet()) {
+            newSchema.addProp(entry.getKey(), entry.getValue());
+        }
+
+        return newSchema;
+    }
+
     @Override
     public void setupLayout() {
         super.setupLayout();
@@ -91,7 +165,7 @@ public class TJDBCOutputProperties extends ComponentPropertiesImpl
         mainForm.addRow(dataAction);
         mainForm.addRow(clearDataInTable);
 
-        mainForm.addRow(schema.getForm(Form.REFERENCE));
+        mainForm.addRow(main.getForm(Form.REFERENCE));
 
         mainForm.addRow(dieOnError);
 
@@ -109,7 +183,7 @@ public class TJDBCOutputProperties extends ComponentPropertiesImpl
     public void setupProperties() {
         super.setupProperties();
 
-        dataAction.setValue(DataAction.Insert);
+        dataAction.setValue(DataAction.INSERT);
 
         commitEvery.setValue(10000);
         batchSize.setValue(10000);
@@ -163,4 +237,17 @@ public class TJDBCOutputProperties extends ComponentPropertiesImpl
     public String getReferencedComponentId() {
         return referencedComponent.componentInstanceId.getValue();
     }
+
+    @Override
+    protected Set<PropertyPathConnector> getAllSchemaPropertiesConnectors(boolean isOutputConnection) {
+        HashSet<PropertyPathConnector> connectors = new HashSet<>();
+        if (isOutputConnection) {
+            connectors.add(FLOW_CONNECTOR);
+            connectors.add(REJECT_CONNECTOR);
+        } else {
+            connectors.add(MAIN_CONNECTOR);
+        }
+        return connectors;
+    }
+
 }

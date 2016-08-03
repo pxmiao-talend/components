@@ -20,6 +20,7 @@ import org.talend.components.api.properties.ComponentReferencePropertiesEnclosin
 import org.talend.components.common.SchemaProperties;
 import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.JDBCConnectionInfoProvider;
+import org.talend.components.jdbc.ReferAnotherComponent;
 import org.talend.components.jdbc.module.JDBCConnectionModule;
 import org.talend.components.jdbc.tjdbcconnection.TJDBCConnectionDefinition;
 import org.talend.daikon.properties.presentation.Form;
@@ -28,7 +29,7 @@ import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 
 public class TJDBCRowProperties extends ComponentPropertiesImpl
-        implements ComponentReferencePropertiesEnclosing, JDBCConnectionInfoProvider {
+        implements ComponentReferencePropertiesEnclosing, JDBCConnectionInfoProvider, ReferAnotherComponent {
 
     public TJDBCRowProperties(String name) {
         super(name);
@@ -133,6 +134,11 @@ public class TJDBCRowProperties extends ComponentPropertiesImpl
     @Override
     public JDBCConnectionModule getJDBCConnectionModule() {
         return connection;
+    }
+
+    @Override
+    public String getReferencedComponentId() {
+        return referencedComponent.componentInstanceId.getValue();
     }
 
 }

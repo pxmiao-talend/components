@@ -19,7 +19,6 @@ import org.talend.components.api.component.InputComponentDefinition;
 import org.talend.components.api.component.runtime.Source;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.jdbc.runtime.JDBCSource;
-import org.talend.components.jdbc.tjdbcconnection.TJDBCConnectionProperties;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 
@@ -43,7 +42,7 @@ public class TJDBCInputDefinition extends AbstractComponentDefinition implements
     @SuppressWarnings("unchecked")
     @Override
     public Class<? extends ComponentProperties>[] getNestedCompatibleComponentPropertiesClass() {
-        return new Class[] { TJDBCConnectionProperties.class, TJDBCInputProperties.class };
+        return new Class[] { TJDBCInputProperties.class };
     }
 
     @Override

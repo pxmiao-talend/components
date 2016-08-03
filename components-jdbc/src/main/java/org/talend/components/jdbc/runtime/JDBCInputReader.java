@@ -71,7 +71,7 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
         try {
             conn = JDBCTemplate.connect(properties.getJDBCConnectionModule());
             Statement statement = conn.createStatement();
-            resultSet = statement.executeQuery(properties.sql.getStringValue());
+            resultSet = statement.executeQuery(properties.sql.getValue());
             return resultSet.next();
         } catch (Exception e) {
             e.printStackTrace();

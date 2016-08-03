@@ -18,6 +18,7 @@ import org.talend.components.api.component.ComponentDefinition;
 import org.talend.components.api.component.OutputComponentDefinition;
 import org.talend.components.api.component.runtime.Sink;
 import org.talend.components.api.properties.ComponentProperties;
+import org.talend.components.jdbc.runtime.JDBCSink;
 import org.talend.components.jdbc.tjdbcconnection.TJDBCConnectionProperties;
 import org.talend.daikon.properties.property.Property;
 
@@ -46,7 +47,7 @@ public class TJDBCOutputDefinition extends AbstractComponentDefinition implement
 
     @Override
     public Sink getRuntime() {
-        return null;
+        return new JDBCSink();
     }
 
     @Override

@@ -27,7 +27,9 @@ import org.talend.components.api.component.runtime.SourceOrSink;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentProperties;
+import org.talend.components.jdbc.ComponentConstants;
 import org.talend.components.jdbc.JDBCConnectionInfoProvider;
+import org.talend.components.jdbc.ReferAnotherComponent;
 import org.talend.components.jdbc.module.JDBCConnectionModule;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.SimpleNamedThing;
@@ -42,7 +44,7 @@ public class JDBCSourceOrSink implements SourceOrSink {
     protected JDBCConnectionInfoProvider properties;
 
     @Override
-    public void initialize(RuntimeContainer adaptor, ComponentProperties properties) {
+    public void initialize(RuntimeContainer runtime, ComponentProperties properties) {
         this.properties = (JDBCConnectionInfoProvider) properties;
     }
 
@@ -56,12 +58,11 @@ public class JDBCSourceOrSink implements SourceOrSink {
     }
 
     @Override
-    public ValidationResult validate(RuntimeContainer adaptor) {
+    public ValidationResult validate(RuntimeContainer runtime) {
         ValidationResult vr = new ValidationResult();
         Connection conn = null;
         try {
-            JDBCConnectionModule connectionInfo = properties.getJDBCConnectionModule();
-            conn = JDBCTemplate.connect(connectionInfo);
+            conn = connect(runtime);
         } catch (Exception ex) {
             fillValidationResult(vr, ex);
         } finally {
@@ -75,12 +76,11 @@ public class JDBCSourceOrSink implements SourceOrSink {
     }
 
     @Override
-    public List<NamedThing> getSchemaNames(RuntimeContainer adaptor) throws IOException {
+    public List<NamedThing> getSchemaNames(RuntimeContainer runtime) throws IOException {
         List<NamedThing> result = new ArrayList<>();
         Connection conn = null;
         try {
-            JDBCConnectionModule connectionInfo = properties.getJDBCConnectionModule();
-            conn = JDBCTemplate.connect(connectionInfo);
+            conn = connect(runtime);
             DatabaseMetaData metadata = conn.getMetaData();
             ResultSet resultset = metadata.getTables(null, null, null, new String[] { "TABLE" });
             while (resultset.next()) {
@@ -100,12 +100,10 @@ public class JDBCSourceOrSink implements SourceOrSink {
     }
 
     @Override
-    public Schema getEndpointSchema(RuntimeContainer adaptor, String tableName) throws IOException {
+    public Schema getEndpointSchema(RuntimeContainer runtime, String tableName) throws IOException {
         Connection conn = null;
-
         try {
-            JDBCConnectionModule connectionInfo = properties.getJDBCConnectionModule();
-            conn = JDBCTemplate.connect(connectionInfo);
+            conn = connect(runtime);
             DatabaseMetaData metadata = conn.getMetaData();
             ResultSet resultset = metadata.getColumns(null, null, tableName, null);
             return JDBCAvroRegistry.get().inferSchema(resultset);
@@ -118,6 +116,36 @@ public class JDBCSourceOrSink implements SourceOrSink {
                 e.printStackTrace();
             }
         }
+    }
+
+    protected Connection connect(RuntimeContainer runtime) throws ClassNotFoundException, SQLException {
+        if (properties instanceof ReferAnotherComponent) {
+            String refComponentId = ((ReferAnotherComponent) properties).getReferencedComponentId();
+            // using another component's connection
+            if (refComponentId != null && runtime != null) {
+                Object existedConn = runtime.getComponentData(refComponentId, ComponentConstants.CONNECTION_KEY);
+                if (existedConn == null) {
+                    throw new RuntimeException("Referenced component: " + refComponentId + " not connected");
+                }
+                return (Connection) existedConn;
+            } else {
+                return createConnection();
+            }
+        } else {// connection component
+            Connection conn = createConnection();
+            if (runtime != null) {
+                runtime.setComponentData(runtime.getCurrentComponentId(), ComponentConstants.CONNECTION_KEY, conn);
+            }
+            return conn;
+        }
+    }
+
+    private Connection createConnection() throws ClassNotFoundException, SQLException {
+        JDBCConnectionModule connectionInfo = properties.getJDBCConnectionModule();
+        java.lang.Class.forName(connectionInfo.driverClass.getValue());
+        Connection conn = java.sql.DriverManager.getConnection(connectionInfo.jdbcUrl.getValue(),
+                connectionInfo.userPassword.userId.getValue(), connectionInfo.userPassword.password.getValue());
+        return conn;
     }
 
 }

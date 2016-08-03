@@ -18,13 +18,15 @@ import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.api.properties.ComponentReferenceProperties;
 import org.talend.components.api.properties.ComponentReferencePropertiesEnclosing;
 import org.talend.components.jdbc.CommonUtils;
+import org.talend.components.jdbc.ReferAnotherComponent;
 import org.talend.components.jdbc.tjdbcconnection.TJDBCConnectionDefinition;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 
-public class TJDBCCommitProperties extends ComponentPropertiesImpl implements ComponentReferencePropertiesEnclosing {
+public class TJDBCCommitProperties extends ComponentPropertiesImpl
+        implements ComponentReferencePropertiesEnclosing, ReferAnotherComponent {
 
     public TJDBCCommitProperties(String name) {
         super(name);
@@ -50,6 +52,11 @@ public class TJDBCCommitProperties extends ComponentPropertiesImpl implements Co
     @Override
     public void afterReferencedComponent() {
         // do nothing
+    }
+
+    @Override
+    public String getReferencedComponentId() {
+        return referencedComponent.componentInstanceId.getValue();
     }
 
 }

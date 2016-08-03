@@ -18,6 +18,7 @@ import org.talend.components.api.component.InputComponentDefinition;
 import org.talend.components.api.component.runtime.Source;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.dropbox.DropboxDefinition;
+import org.talend.components.dropbox.runtime.DropboxGetSource;
 
 import aQute.bnd.annotation.component.Component;
 
@@ -44,7 +45,7 @@ public class TDropboxGetDefinition extends DropboxDefinition implements InputCom
      */
     @Override
     public Source getRuntime() {
-        return null;
+        return new DropboxGetSource();
     }
 
     /**

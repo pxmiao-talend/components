@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.talend.components.api.component.runtime.Source;
 import org.talend.components.dropbox.DropboxDefinition;
+import org.talend.components.dropbox.runtime.DropboxGetSource;
 
 /**
  * Unit-tests for {@link TDropboxGetDefinition} class
@@ -81,13 +82,13 @@ public class TDropboxGetDefinitionTest {
     }
 
     /**
-     * Check {@link TDropboxGetDefinition#getRuntime()} returns instance of {@link JiraSource}
+     * Check {@link TDropboxGetDefinition#getRuntime()} returns instance of {@link DropboxGetSource}
      */
-    //    @Test
-    //    public void testGetRuntime() {
-    //        TDropboxGetDefinition definition = new TDropboxGetDefinition();
-    //        Source source = definition.getRuntime();
-    //        assertThat(source, is(instanceOf(DropboxSourceOrSink.class)));
-    //    }
+    @Test
+    public void testGetRuntime() {
+        TDropboxGetDefinition definition = new TDropboxGetDefinition();
+        Source source = definition.getRuntime();
+        assertThat(source, is(instanceOf(DropboxGetSource.class)));
+    }
 
 }

@@ -33,7 +33,8 @@ import org.talend.daikon.properties.presentation.Widget;
 public class TDropboxConnectionPropertiesTest {
 
     /**
-     * Checks {@link TDropboxConnectionProperties#afterReferencedComponent()} hides Main form widget from Reference from, when componentId is specified
+     * Checks {@link TDropboxConnectionProperties#afterReferencedComponent()} hides Main form widget from Reference from, when
+     * componentId is specified
      */
     @Test
     public void testAfterReferencedComponent() {

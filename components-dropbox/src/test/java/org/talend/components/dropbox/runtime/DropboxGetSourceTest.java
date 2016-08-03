@@ -13,14 +13,17 @@
 package org.talend.components.dropbox.runtime;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.avro.Schema;
+import org.apache.avro.generic.IndexedRecord;
 import org.junit.Before;
 import org.junit.Test;
 import org.talend.components.api.component.runtime.Reader;
+import org.talend.components.dropbox.runtime.reader.DropboxGetReader;
 import org.talend.components.dropbox.tdropboxget.TDropboxGetProperties;
 
 /**
@@ -33,7 +36,7 @@ public class DropboxGetSourceTest extends DropboxRuntimeTestBase {
      */
     @Before
     public void setUp() {
-        setupShema();
+        setupSchema();
         setupConnectionProperties();
         setupGetProperties();
     }
@@ -49,19 +52,19 @@ public class DropboxGetSourceTest extends DropboxRuntimeTestBase {
         boolean saveAsFile = source.isSaveAsFile();
         assertTrue(saveAsFile);
         String saveTo = source.getSaveTo();
-        assertEquals("/path/to/save/file.txt", saveTo);
+        assertEquals("d:/test/Readme.md", saveTo);
         Schema actualSchema = source.getSchema();
         assertEquals(schema, actualSchema);
     }
 
     /**
-     * Checks {@link DropboxGetSource#createReader()} creates reader of type null
+     * Checks {@link DropboxGetSource#createReader()} creates reader of type {@link DropboxGetReader}
      */
     @Test
     public void testCreateReader() {
         DropboxGetSource source = new DropboxGetSource();
-        Reader reader = source.createReader(container);
-        assertThat(reader, nullValue());
+        Reader<IndexedRecord> reader = source.createReader(container);
+        assertThat(reader, is(instanceOf(DropboxGetReader.class)));
     }
 
 }

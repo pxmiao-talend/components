@@ -13,6 +13,7 @@
 package org.talend.components.dropbox.runtime;
 
 import org.apache.avro.Schema;
+import org.apache.avro.generic.IndexedRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.Reader;
@@ -20,6 +21,7 @@ import org.talend.components.api.component.runtime.Source;
 import org.talend.components.api.component.runtime.SourceOrSink;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.properties.ComponentProperties;
+import org.talend.components.dropbox.runtime.reader.DropboxGetReader;
 import org.talend.components.dropbox.tdropboxget.TDropboxGetProperties;
 
 /**
@@ -70,8 +72,8 @@ public class DropboxGetSource extends DropboxComponentSourceOrSink implements So
      * {@inheritDoc}
      */
     @Override
-    public Reader createReader(RuntimeContainer container) {
-        return null;
+    public Reader<IndexedRecord> createReader(RuntimeContainer container) {
+        return new DropboxGetReader(this);
     }
 
     /**

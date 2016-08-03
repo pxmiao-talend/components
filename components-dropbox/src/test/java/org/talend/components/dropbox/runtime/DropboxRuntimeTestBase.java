@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.components.dropbox.runtime;
 
+import static org.talend.components.dropbox.DropboxTestConstants.ACCESS_TOKEN;
 import static org.talend.daikon.avro.SchemaConstants.TALEND_IS_LOCKED;
 
 import java.nio.ByteBuffer;
@@ -44,7 +45,9 @@ public class DropboxRuntimeTestBase {
 
     protected TDropboxGetProperties getProperties;
 
-    protected void setupShema() {
+    protected DropboxGetSource getSource;
+
+    protected void setupSchema() {
         // get Schema for String class
         AvroRegistry registry = new AvroRegistry();
         Schema stringSchema = registry.getConverter(String.class).getSchema();
@@ -63,7 +66,7 @@ public class DropboxRuntimeTestBase {
     protected void setupConnectionProperties() {
         connectionProperties = new TDropboxConnectionProperties("connection");
         connectionProperties.setupProperties();
-        connectionProperties.accessToken.setValue("testAccessToken");
+        connectionProperties.accessToken.setValue(ACCESS_TOKEN);
         connectionProperties.useHttpProxy.setValue(false);
     }
 
@@ -88,10 +91,18 @@ public class DropboxRuntimeTestBase {
      */
     protected void setupGetProperties() {
         getProperties = new TDropboxGetProperties("root");
-        getProperties.path.setValue("/path/to/test/file.txt");
+        getProperties.path.setValue("/Readme.md");
         getProperties.connection = connectionProperties;
         getProperties.saveAsFile.setValue(true);
-        getProperties.saveTo.setValue("/path/to/save/file.txt");
+        getProperties.saveTo.setValue("d:/test/Readme.md");
         getProperties.schema.schema.setValue(schema);
+    }
+
+    /**
+     * Creates test instance of {@link DropboxGetSource} and sets it with test values
+     */
+    protected void setupGetSource() {
+        getSource = new DropboxGetSource();
+        getSource.initialize(container, getProperties);
     }
 }

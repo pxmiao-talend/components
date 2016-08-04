@@ -102,6 +102,12 @@
             <artifactId>jackson-core</artifactId>
             <version>2.5.3</version>
         </dependency>
+        <!--  transitive dependencies -->
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.8.2</version>
+        </dependency>
     </dependencies>
     
     <build>
@@ -160,7 +166,7 @@
                             <instructions>
                                 <Bundle-SymbolicName>org.talend.components.dropbox</Bundle-SymbolicName>
                                 <Service-Component>*</Service-Component>
-                                <Import-Package>!android*,!com.google.appengine*,!com.squareup*,!javax*,!okhttp3*,!okio*,*,aQute.bnd.annotation.component</Import-Package>
+                                <Import-Package>!org.joda.convert,!android*,!com.google.appengine*,!com.squareup*,!javax*,!okhttp3*,!okio*,*,aQute.bnd.annotation.component</Import-Package>
                                 <Embed-Dependency>*;scope=compile|runtime;inline=false;artifactId=!components*|jackson-core|httpclient</Embed-Dependency>
                                 <Include-Resource>{maven-resources},META-INF/maven/org.talend.components/components-dropbox/dependencies.txt=target/classes/META-INF/maven/dependencies.txt</Include-Resource>
                                 <Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>

@@ -22,16 +22,16 @@ import org.apache.avro.generic.IndexedRecord;
  * Dropbox {@link IndexedRecord}
  */
 public class DropboxIndexedRecord implements IndexedRecord {
-    
+
     private final Schema schema;
-    
+
     private List<Object> values;
-    
+
     private int size;
-    
+
     public DropboxIndexedRecord(Schema schema) {
         this.schema = schema;
-        size = schema.getFixedSize();
+        size = schema.getFields().size();
         values = new ArrayList<Object>(size);
     }
 
@@ -42,7 +42,7 @@ public class DropboxIndexedRecord implements IndexedRecord {
     public Schema getSchema() {
         return schema;
     }
-    
+
     /**
      * {@inheritDoc}
      */

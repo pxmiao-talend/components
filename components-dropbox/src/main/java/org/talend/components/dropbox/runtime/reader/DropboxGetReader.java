@@ -25,6 +25,7 @@ import org.apache.avro.generic.IndexedRecord;
 import org.joda.time.Instant;
 import org.talend.components.api.component.runtime.Reader;
 import org.talend.components.api.component.runtime.Source;
+import org.talend.components.dropbox.avro.DropboxIndexedRecord;
 import org.talend.components.dropbox.runtime.DropboxGetSource;
 
 import com.dropbox.core.DbxDownloader;
@@ -33,12 +34,26 @@ import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.DbxUserFilesRequests;
 import com.dropbox.core.v2.files.FileMetadata;
 
+/**
+ * Downloads one file from Dropbox server, saves it on filesystem if required.
+ * Provides {@link IndexedRecord} with file name and its content
+ */
 public class DropboxGetReader implements Reader<IndexedRecord> {
 
     /**
      * {@link Source} from which this {@link Reader} reads
      */
     private DropboxGetSource source;
+
+    /**
+     * Current {@link IndexedRecord}
+     */
+    private DropboxIndexedRecord currentRecord;
+
+    /**
+     * Specifies whether {@link DropboxGetReader#start()} was called
+     */
+    private boolean started;
 
     /**
      * Constructor sets {@link DropboxGetSource} 
@@ -76,11 +91,14 @@ public class DropboxGetReader implements Reader<IndexedRecord> {
             } else {
                 content = downloader.getInputStream();
             }
-            // pack it in IndexedRecord
+            currentRecord = new DropboxIndexedRecord(source.getSchema());
+            currentRecord.put(0, fileName);
+            currentRecord.put(1, content);
         } catch (DbxException e) {
             throw new IOException(e);
         }
-        return true;
+        started = true;
+        return started;
     }
 
     /**
@@ -93,10 +111,17 @@ public class DropboxGetReader implements Reader<IndexedRecord> {
         return false;
     }
 
+    /**
+     * Returns current {@link IndexedRecord}
+     * 
+     * @return current {@link IndexedRecord}
+     */
     @Override
     public IndexedRecord getCurrent() throws NoSuchElementException {
-        // TODO Auto-generated method stub
-        return null;
+        if (!started) {
+            throw new NoSuchElementException("Reader wasn't started");
+        }
+        return currentRecord;
     }
 
     /**
@@ -114,7 +139,7 @@ public class DropboxGetReader implements Reader<IndexedRecord> {
      * Does nothing, because Dropbox client releases resources by itself
      */
     @Override
-    public void close() throws IOException {
+    public void close() {
         // Nothing to be done here
     }
 

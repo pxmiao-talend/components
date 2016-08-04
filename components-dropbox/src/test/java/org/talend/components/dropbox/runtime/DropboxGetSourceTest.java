@@ -16,7 +16,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import org.apache.avro.Schema;
 import org.apache.avro.generic.IndexedRecord;
@@ -50,9 +50,9 @@ public class DropboxGetSourceTest extends DropboxRuntimeTestBase {
         source.initialize(container, getProperties);
 
         boolean saveAsFile = source.isSaveAsFile();
-        assertTrue(saveAsFile);
+        assertFalse(saveAsFile);
         String saveTo = source.getSaveTo();
-        assertEquals("d:/test/Readme.md", saveTo);
+        assertEquals("d:/test/TestFile.txt", saveTo);
         Schema actualSchema = source.getSchema();
         assertEquals(schema, actualSchema);
     }

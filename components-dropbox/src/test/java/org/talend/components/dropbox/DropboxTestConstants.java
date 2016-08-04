@@ -21,4 +21,14 @@ public final class DropboxTestConstants {
      * Dropbox access token used for OAuth2 connection
      */
     public static String ACCESS_TOKEN = "YKEcGph8hWAAAAAAAAAAFDgTzmtSANkKgyYvARYpDHQE4j9cIhxAMWYRxGihjqeJ";
+
+    /**
+     * Path to file, which can be downloaded from Dropbox servers
+     */
+    public static String DOWNLOAD_FILE = "/TestFile.txt";
+
+    /**
+     * Path where to save downloaded file
+     */
+    public static String PATH_TO_SAVE = "d:/test/TestFile.txt";
 }

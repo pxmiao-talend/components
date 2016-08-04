@@ -13,6 +13,8 @@
 package org.talend.components.dropbox.runtime;
 
 import static org.talend.components.dropbox.DropboxTestConstants.ACCESS_TOKEN;
+import static org.talend.components.dropbox.DropboxTestConstants.DOWNLOAD_FILE;
+import static org.talend.components.dropbox.DropboxTestConstants.PATH_TO_SAVE;
 import static org.talend.daikon.avro.SchemaConstants.TALEND_IS_LOCKED;
 
 import java.nio.ByteBuffer;
@@ -91,10 +93,10 @@ public class DropboxRuntimeTestBase {
      */
     protected void setupGetProperties() {
         getProperties = new TDropboxGetProperties("root");
-        getProperties.path.setValue("/Readme.md");
+        getProperties.path.setValue(DOWNLOAD_FILE);
         getProperties.connection = connectionProperties;
-        getProperties.saveAsFile.setValue(true);
-        getProperties.saveTo.setValue("d:/test/Readme.md");
+        getProperties.saveAsFile.setValue(false);
+        getProperties.saveTo.setValue(PATH_TO_SAVE);
         getProperties.schema.schema.setValue(schema);
     }
 

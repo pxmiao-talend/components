@@ -116,15 +116,12 @@ public class DropboxSourceOrSink implements SourceOrSink {
      */
     @Override
     public ValidationResult validate(RuntimeContainer container) {
-        ValidationResult result = validateHost();
-        if (result.status == ValidationResult.Result.OK) {
-            DbxClientV2 dbxClient = connect();
-            if (container != null) {
-                String componentId = container.getCurrentComponentId();
-                container.setComponentData(componentId, CONNECTION_KEY, dbxClient);
-            }
+        DbxClientV2 dbxClient = createConnection();
+        if (container != null) {
+            String componentId = container.getCurrentComponentId();
+            container.setComponentData(componentId, CONNECTION_KEY, dbxClient);
         }
-        return result;
+        return ValidationResult.OK;
     }
 
     /**
@@ -164,7 +161,7 @@ public class DropboxSourceOrSink implements SourceOrSink {
      * 
      * @return Dropbox client
      */
-    protected DbxClientV2 connect() {
+    protected DbxClientV2 createConnection() {
         DbxRequestConfig.Builder configBuilder = DbxRequestConfig.newBuilder(CLIENT_IDENTIFIER);
         configBuilder.withUserLocale(LOCALE);
         if (useProxy) {

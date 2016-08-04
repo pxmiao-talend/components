@@ -75,20 +75,17 @@ public class DropboxComponentSourceOrSink extends DropboxSourceOrSink {
      */
     @Override
     public ValidationResult validate(RuntimeContainer container) {
-        ValidationResult result = validateHost();
-        if (result.status == ValidationResult.Result.OK) {
-            // uses existent connection component
-            if (referencedComponentId != null) {
-                if (container != null) {
-                    client = (DbxClientV2) container.getComponentData(referencedComponentId, CONNECTION_KEY);
-                }
-            }
-            // creates new connection
-            if (client == null) {
-                client = connect();
+        // uses existent connection component
+        if (referencedComponentId != null) {
+            if (container != null) {
+                client = (DbxClientV2) container.getComponentData(referencedComponentId, CONNECTION_KEY);
             }
         }
-        return result;
+        // creates new connection
+        if (client == null) {
+            client = createConnection();
+        }
+        return ValidationResult.OK;
     }
 
     /**

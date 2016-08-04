@@ -4,7 +4,9 @@ import org.talend.components.api.Constants;
 import org.talend.components.api.component.ComponentDefinition;
 import org.talend.components.api.component.InputComponentDefinition;
 import org.talend.components.api.component.runtime.Source;
+import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.fileinput.FileInputDefinition;
+import org.talend.components.fileinput.runtime.FileInputSource;
 
 import aQute.bnd.annotation.component.Component;
 
@@ -17,10 +19,15 @@ public class TFileInputDelimitedDefinition extends FileInputDefinition implement
 	        super(COMPONENT_NAME);
 	    }
 
+	 @Override
+	    public Class<? extends ComponentProperties> getPropertyClass() {
+	        return TFileInputDelimitedProperties.class;
+	    }
+	 
 	@Override
 	public Source getRuntime() {
 		// TODO Auto-generated method stub
-		return null;
+		return new FileInputSource();
 	}
 		
 }

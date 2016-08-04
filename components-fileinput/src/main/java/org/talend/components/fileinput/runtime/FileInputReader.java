@@ -1,4 +1,4 @@
-package org.talend.components.fileinput;
+package org.talend.components.fileinput.runtime;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -9,6 +9,7 @@ import java.util.NoSuchElementException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.talend.components.api.container.RuntimeContainer;
+import org.talend.components.fileinput.FileInputDefinition;
 import org.talend.components.api.component.runtime.AbstractBoundedReader;
 import org.talend.components.api.component.runtime.BoundedSource;
 import org.talend.components.api.component.runtime.Result;

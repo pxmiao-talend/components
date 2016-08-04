@@ -1,4 +1,4 @@
-package org.talend.components.fileinput;
+package org.talend.components.fileinput.runtime;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +11,7 @@ import org.talend.components.api.component.runtime.BoundedReader;
 import org.talend.components.api.component.runtime.BoundedSource;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.properties.ComponentProperties;
-
+import org.talend.components.fileinput.FileInputProperties;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.properties.ValidationResult;
 

@@ -1,0 +1,13 @@
+{
+ "$schema": "http://json-schema.org/schema#",
+ "id": "http://talend.com/schemas/datastreams/cassandra_dataset.json",
+ "type": "object",
+ "properties": {
+   "schema": [
+     {"type":"string"},
+     {"type":"object"}
+   ],
+   "keyspace": {"type":"string"}, 
+   "table": {"type":"string"}
+ }
+}

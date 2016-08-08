@@ -22,9 +22,10 @@
 		<module>components-splunk</module>
 		<module>components-jira</module>
 		<module>components-dataprep</module>
-        <module>components-api-full-example</module>
-        <module>components-datastewardship</module>
-  </modules>
+		<module>components-api-full-example</module>
+		<module>components-cassandra</module>
+		<module>components-datastewardship</module>
+	</modules>
 	<profiles>
 		<profile>
 			<id>eclipse</id>

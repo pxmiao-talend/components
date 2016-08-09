@@ -47,6 +47,16 @@ public class DropboxGetSource extends DropboxComponentSourceOrSink implements So
      * Data schema
      */
     private Schema schema;
+    
+    /**
+     * Defines whether to use chunk mode
+     */
+    private boolean chunkMode;
+
+    /**
+     * Defines size of 1 chunk
+     */
+    private int chunkSize;
 
     /**
      * Initializes this {@link SourceOrSink} with user specified properties
@@ -63,6 +73,8 @@ public class DropboxGetSource extends DropboxComponentSourceOrSink implements So
             saveAsFile = getProperties.saveAsFile.getValue();
             saveTo = getProperties.saveTo.getValue();
             schema = getProperties.schema.schema.getValue();
+            chunkMode = getProperties.chunkMode.getValue();
+            chunkSize = getProperties.chunkSize.getValue();
         } else {
             LOG.debug("Wrong properties type");
         }
@@ -101,6 +113,24 @@ public class DropboxGetSource extends DropboxComponentSourceOrSink implements So
      */
     public Schema getSchema() {
         return schema;
+    }
+    
+    /**
+     * Returns chunk mode value
+     * 
+     * @return true, if chunk mode will be used
+     */
+    public boolean isChunkMode() {
+        return chunkMode;
+    }
+
+    /**
+     * Returns size of one chunk
+     * 
+     * @return size of chunk
+     */
+    public int getChunkSize() {
+        return chunkSize;
     }
 
 }

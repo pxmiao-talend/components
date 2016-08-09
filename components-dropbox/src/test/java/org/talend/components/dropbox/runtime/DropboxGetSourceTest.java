@@ -17,6 +17,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.avro.Schema;
 import org.apache.avro.generic.IndexedRecord;
@@ -55,6 +56,10 @@ public class DropboxGetSourceTest extends DropboxRuntimeTestBase {
         assertEquals("d:/test/TestFile.txt", saveTo);
         Schema actualSchema = source.getSchema();
         assertEquals(schema, actualSchema);
+        boolean chunkMode = source.isChunkMode();
+        assertTrue(chunkMode);
+        int chunkSize = source.getChunkSize();
+        assertEquals(8192, chunkSize);
     }
 
     /**

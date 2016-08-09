@@ -98,6 +98,8 @@ public class DropboxRuntimeTestBase {
         getProperties.saveAsFile.setValue(false);
         getProperties.saveTo.setValue(PATH_TO_SAVE);
         getProperties.schema.schema.setValue(schema);
+        getProperties.chunkMode.setValue(true);
+        getProperties.chunkSize.setValue(8192);
     }
 
     /**

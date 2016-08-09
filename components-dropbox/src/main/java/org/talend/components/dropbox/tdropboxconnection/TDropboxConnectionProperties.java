@@ -108,6 +108,7 @@ public class TDropboxConnectionProperties extends ComponentPropertiesImpl implem
      */
     @Override
     public void refreshLayout(Form form) {
+        super.refreshLayout(form);
         if (form.getName().equals(Form.MAIN)) {
             boolean useHttpProxyValue = useHttpProxy.getValue();
             if (useHttpProxyValue) {

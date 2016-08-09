@@ -135,6 +135,7 @@ public class TDropboxGetProperties extends DropboxProperties {
      */
     @Override
     public void refreshLayout(Form form) {
+        super.refreshLayout(form);
         if (form.getName().equals(Form.MAIN)) {
             boolean saveAsFileValue = saveAsFile.getValue();
             if (saveAsFileValue) {

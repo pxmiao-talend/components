@@ -47,7 +47,7 @@ public class DropboxGetSource extends DropboxComponentSourceOrSink implements So
      * Data schema
      */
     private Schema schema;
-    
+
     /**
      * Defines whether to use chunk mode
      */
@@ -114,7 +114,7 @@ public class DropboxGetSource extends DropboxComponentSourceOrSink implements So
     public Schema getSchema() {
         return schema;
     }
-    
+
     /**
      * Returns chunk mode value
      * 

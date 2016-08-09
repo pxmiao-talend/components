@@ -46,7 +46,7 @@ public class TDropboxGetProperties extends DropboxProperties {
     /**
      * Default value of chunk size
      */
-    private static final int DEFAULT_CHUNK_SIZE = 8192;
+    public static final int DEFAULT_CHUNK_SIZE = 8192;
 
     /**
      * Initializes schema constant

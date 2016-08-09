@@ -44,6 +44,11 @@ public class TDropboxGetProperties extends DropboxProperties {
     private static final Schema FILE_SCHEMA;
 
     /**
+     * Default value of chunk size
+     */
+    private static final int DEFAULT_CHUNK_SIZE = 8192;
+
+    /**
      * Initializes schema constant
      */
     static {
@@ -75,6 +80,16 @@ public class TDropboxGetProperties extends DropboxProperties {
     public SchemaProperties schema = new SchemaProperties("schema");
 
     /**
+     * Flag, which indicates whether to use chunkMode
+     */
+    public Property<Boolean> chunkMode = PropertyFactory.newBoolean("chunkMode");
+
+    /**
+     * Specifies size of data chunk
+     */
+    public Property<Integer> chunkSize = PropertyFactory.newInteger("chunkSize");
+
+    /**
      * Main connector (accepts Main flow connections) and provides schema property
      */
     private transient PropertyPathConnector MAIN_CONNECTOR = new PropertyPathConnector(Connector.MAIN_NAME, "schema");
@@ -96,6 +111,7 @@ public class TDropboxGetProperties extends DropboxProperties {
         super.setupProperties();
         saveTo.setValue("");
         schema.schema.setValue(FILE_SCHEMA);
+        chunkSize.setValue(DEFAULT_CHUNK_SIZE);
     }
 
     /**
@@ -108,6 +124,10 @@ public class TDropboxGetProperties extends DropboxProperties {
         mainForm.addRow(saveAsFile);
         mainForm.addColumn(saveTo);
         mainForm.addRow(schema.getForm(Form.REFERENCE));
+
+        Form advancedForm = new Form(this, Form.ADVANCED);
+        advancedForm.addRow(chunkMode);
+        advancedForm.addColumn(chunkSize);
     }
 
     /**
@@ -121,6 +141,15 @@ public class TDropboxGetProperties extends DropboxProperties {
                 form.getWidget(saveTo.getName()).setHidden(false);
             } else {
                 form.getWidget(saveTo.getName()).setHidden(true);
+            }
+        }
+
+        if (form.getName().equals(Form.ADVANCED)) {
+            boolean chunkModeValue = chunkMode.getValue();
+            if (chunkModeValue) {
+                form.getWidget(chunkSize.getName()).setHidden(false);
+            } else {
+                form.getWidget(chunkSize.getName()).setHidden(true);
             }
         }
     }
@@ -145,6 +174,13 @@ public class TDropboxGetProperties extends DropboxProperties {
      */
     public void afterSaveAsFile() {
         refreshLayout(getForm(Form.MAIN));
+    }
+
+    /**
+     * Refreshes layout after Chunk Mode checkbox is changed
+     */
+    public void afterChunkMode() {
+        refreshLayout(getForm(Form.ADVANCED));
     }
 
 }

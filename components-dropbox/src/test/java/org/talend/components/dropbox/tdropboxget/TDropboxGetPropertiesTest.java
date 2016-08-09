@@ -18,7 +18,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -59,7 +58,7 @@ public class TDropboxGetPropertiesTest {
     }
 
     /**
-     * Checks {@link TDropboxGetProperties#afterSaveAsFile()} hides Save To widget, when Save As File checkbox is гтchecked
+     * Checks {@link TDropboxGetProperties#afterSaveAsFile()} hides Save To widget, when Save As File checkbox is unchecked
      */
     @Test
     public void testAfterSaveAsFileFalse() {
@@ -71,6 +70,36 @@ public class TDropboxGetPropertiesTest {
 
         boolean saveToHidden = properties.getForm(Form.MAIN).getWidget("saveTo").isHidden();
         assertTrue(saveToHidden);
+    }
+
+    /**
+     * Checks {@link TDropboxGetProperties#afterChunkMode()()} shows Chunk Size widget, when Chunk Mode checkbox is checked
+     */
+    @Test
+    public void testAfterChunkModeTrue() {
+        TDropboxGetProperties properties = new TDropboxGetProperties("root");
+        properties.init();
+        properties.chunkMode.setValue(true);
+
+        properties.afterChunkMode();
+
+        boolean chunkSizeHidden = properties.getForm(Form.ADVANCED).getWidget("chunkSize").isHidden();
+        assertFalse(chunkSizeHidden);
+    }
+
+    /**
+     * Checks {@link TDropboxGetProperties#afterChunkMode()} hides Chunk Size widget, when Chunk Mode checkbox is unchecked
+     */
+    @Test
+    public void testAfterChunkModeFalse() {
+        TDropboxGetProperties properties = new TDropboxGetProperties("root");
+        properties.init();
+        properties.chunkMode.setValue(false);
+
+        properties.afterChunkMode();
+
+        boolean chunkSizeHidden = properties.getForm(Form.ADVANCED).getWidget("chunkSize").isHidden();
+        assertTrue(chunkSizeHidden);
     }
 
     /**
@@ -95,11 +124,15 @@ public class TDropboxGetPropertiesTest {
         boolean saveAsFileValue = properties.saveAsFile.getValue();
         String saveToValue = properties.saveTo.getValue();
         Schema schemaValue = properties.schema.schema.getValue();
+        boolean chunkMode = properties.chunkMode.getValue();
+        int chunkSize = properties.chunkSize.getValue();
 
         assertThat(pathValue, equalTo(""));
         assertFalse(saveAsFileValue);
         assertThat(saveToValue, equalTo(""));
         assertThat(schemaValue, equalTo(expectedSchema));
+        assertFalse(chunkMode);
+        assertThat(chunkSize, equalTo(8192));
     }
 
     /**
@@ -111,17 +144,20 @@ public class TDropboxGetPropertiesTest {
         properties.init();
 
         properties.refreshLayout(properties.getForm(Form.MAIN));
+        properties.refreshLayout(properties.getForm(Form.ADVANCED));
 
         boolean connectionIsHidden = properties.getForm(Form.MAIN).getWidget("connection").isHidden();
         boolean pathIsHidden = properties.getForm(Form.MAIN).getWidget("path").isHidden();
         boolean saveAsFileIsHidden = properties.getForm(Form.MAIN).getWidget("saveAsFile").isHidden();
         boolean saveToIsHidden = properties.getForm(Form.MAIN).getWidget("saveTo").isHidden();
         boolean schemaIsHidden = properties.getForm(Form.MAIN).getWidget("schema").isHidden();
+        boolean chunkSizeIsHidden = properties.getForm(Form.ADVANCED).getWidget("chunkSize").isHidden();
         assertFalse(connectionIsHidden);
         assertFalse(pathIsHidden);
         assertFalse(saveAsFileIsHidden);
         assertTrue(saveToIsHidden);
         assertFalse(schemaIsHidden);
+        assertTrue(chunkSizeIsHidden);
     }
 
     /**
@@ -157,6 +193,7 @@ public class TDropboxGetPropertiesTest {
     /**
      * Checks {@link TDropboxGetProperties#setupLayout()} creates Main form,
      * which contains 5 widgets: Connection, Path, Save As File, Save To, Schema
+     * and Advanced form, which contains 2 widgets: Chunk Mode and Chunk Size
      */
     @Test
     public void testSetupLayout() {
@@ -168,7 +205,7 @@ public class TDropboxGetPropertiesTest {
         Form main = properties.getForm(Form.MAIN);
         assertThat(main, notNullValue());
         Form advanced = properties.getForm(Form.ADVANCED);
-        assertThat(advanced, nullValue());
+        assertThat(advanced, notNullValue());
 
         Collection<Widget> mainWidgets = main.getWidgets();
         assertThat(mainWidgets, hasSize(5));
@@ -183,6 +220,9 @@ public class TDropboxGetPropertiesTest {
         assertThat(saveToWidget, notNullValue());
         Widget schemaWidget = main.getWidget("schema");
         assertThat(schemaWidget, notNullValue());
+
+        Collection<Widget> advancedWidgets = advanced.getWidgets();
+        assertThat(advancedWidgets, hasSize(2));
     }
 
     /**

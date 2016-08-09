@@ -16,10 +16,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +48,7 @@ public class DropboxGetReaderTestIT extends DropboxRuntimeTestBase {
 
     /**
      * Checks Dropbox component read test-case:
-     * 1. Only 1 record should be read
+     * 1. Only 1 record should be read, because file is less than default size of chunk
      * 2. It should provide IndexedRecord with 2 fields: fileName and content
      * 3. It should read only specified file. Here, TestFile.txt
      * 4. File content should be available
@@ -62,8 +60,10 @@ public class DropboxGetReaderTestIT extends DropboxRuntimeTestBase {
         assertEquals(ValidationResult.OK, vr);
         DropboxGetReader reader = new DropboxGetReader(getSource);
         List<IndexedRecord> records = new ArrayList<IndexedRecord>(1);
+        ByteArrayOutputStream fileBuffer = new ByteArrayOutputStream();
         for (boolean hasNext = reader.start(); hasNext; hasNext = reader.advance()) {
             IndexedRecord record = reader.getCurrent();
+            fileBuffer.write((byte[]) record.get(1));
             records.add(record);
         }
         reader.close();
@@ -74,10 +74,9 @@ public class DropboxGetReaderTestIT extends DropboxRuntimeTestBase {
         assertEquals(schema, actualSchema);
         String fileName = (String) record.get(0);
         assertEquals("TestFile.txt", fileName);
-        InputStream content = (InputStream) record.get(1);
-        BufferedReader br = new BufferedReader(new InputStreamReader(content));
-        String firstLine = br.readLine();
-        assertEquals("Talend the Best", firstLine);
+        String content = fileBuffer.toString();
+        assertEquals("Talend the Best", content);
+        fileBuffer.close();
     }
 
 }

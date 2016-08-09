@@ -15,7 +15,6 @@ package org.talend.components.dropbox.runtime.reader;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 import java.util.Map;
 
@@ -40,18 +39,6 @@ public class DropboxGetReaderTest extends DropboxRuntimeTestBase {
         setupConnectionProperties();
         setupGetProperties();
         setupGetSource();
-    }
-
-    /**
-     * Checks {@link DropboxGetReader#advance()} always returns false
-     * Dropbox Get component always reads only one file. All work will be performed in start method.
-     * So, advance() will return false every time
-     */
-    @Test
-    public void testAdvance() {
-        DropboxGetReader reader = new DropboxGetReader(getSource);
-        boolean advance = reader.advance();
-        assertFalse(advance);
     }
 
     /**

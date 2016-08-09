@@ -56,6 +56,21 @@ public class DropboxGetReader implements Reader<IndexedRecord> {
     private boolean started;
 
     /**
+     * {@link InputStream} from which file is read
+     */
+    private InputStream inputStream;
+
+    /**
+     * Name of file
+     */
+    private String fileName;
+
+    /**
+     * Size of chunk in bytes. Default value is 8kB
+     */
+    private int chunkSize = 8192;
+
+    /**
      * Constructor sets {@link DropboxGetSource} 
      * 
      * @param source {@link DropboxGetSource} instance
@@ -65,7 +80,8 @@ public class DropboxGetReader implements Reader<IndexedRecord> {
     }
 
     /**
-     * Downloads file from Dropbox, saves it on filesystem and created {@link IndexedRecord}
+     * Obtains {@link InputStream} from which file will be read.
+     * Optionally, saves file on filesystem depending on Save As File property value
      * 
      * @return true, if download was successful
      */
@@ -76,8 +92,7 @@ public class DropboxGetReader implements Reader<IndexedRecord> {
         String path = source.getPath();
         try {
             DbxDownloader<FileMetadata> downloader = filesClient.download(path);
-            String fileName = downloader.getResult().getName();
-            InputStream content = null;
+            fileName = downloader.getResult().getName();
             if (source.isSaveAsFile()) {
                 String saveTo = source.getSaveTo();
                 File fileToSave = new File(saveTo);
@@ -87,28 +102,40 @@ public class DropboxGetReader implements Reader<IndexedRecord> {
                 try (FileOutputStream fos = new FileOutputStream(fileToSave)) {
                     downloader.download(fos);
                 }
-                content = new FileInputStream(fileToSave);
+                inputStream = new FileInputStream(fileToSave);
             } else {
-                content = downloader.getInputStream();
+                inputStream = downloader.getInputStream();
             }
-            currentRecord = new DropboxIndexedRecord(source.getSchema());
-            currentRecord.put(0, fileName);
-            currentRecord.put(1, content);
         } catch (DbxException e) {
             throw new IOException(e);
         }
-        started = true;
+        started = advance();
         return started;
     }
 
     /**
-     * Always returns false, because Dropbox Get component returns only one record per run
+     * Reads next chunk in byte array and packs it in next {@link IndexedRecord}
      * 
-     * @return false
+     * @return true, next chunk was read; false if there is no more data
+     * @throws IOException if some I/O error occurs during reading from {@link InputStream}
      */
     @Override
-    public boolean advance() {
-        return false;
+    public boolean advance() throws IOException {
+        byte[] bytes = new byte[chunkSize];
+        int wasRead = inputStream.read(bytes);
+        if (wasRead == 0 || wasRead == -1) {
+            return false;
+        }
+        // trim byte array if it was read less bytes than chunk size
+        if (wasRead < chunkSize) {
+            byte[] trimmedBytes = new byte[wasRead];
+            System.arraycopy(bytes, 0, trimmedBytes, 0, wasRead);
+            bytes = trimmedBytes;
+        }
+        currentRecord = new DropboxIndexedRecord(source.getSchema());
+        currentRecord.put(0, fileName);
+        currentRecord.put(1, bytes);
+        return true;
     }
 
     /**
@@ -137,10 +164,11 @@ public class DropboxGetReader implements Reader<IndexedRecord> {
 
     /**
      * Does nothing, because Dropbox client releases resources by itself
+     * @throws IOException if an I/O error occurs during reading from {@link InputStream}
      */
     @Override
-    public void close() {
-        // Nothing to be done here
+    public void close() throws IOException {
+        inputStream.close();
     }
 
     /**

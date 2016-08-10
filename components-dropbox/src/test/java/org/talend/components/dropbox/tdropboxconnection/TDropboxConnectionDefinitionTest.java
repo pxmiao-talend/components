@@ -71,7 +71,7 @@ public class TDropboxConnectionDefinitionTest {
 
     /**
      * Check {@link TDropboxConnectionDefinition#getPropertyClass()} returns class, which canonical name is
-     * "org.talend.components.jira.tjirainput.TDropboxConnectionProperties"
+     * "org.talend.components.dropbox.tdropboxconnection.TDropboxConnectionProperties"
      */
     @Test
     public void testGetPropertyClass() {
@@ -82,7 +82,7 @@ public class TDropboxConnectionDefinitionTest {
     }
 
     /**
-     * Check {@link TDropboxConnectionDefinition#getRuntime()} returns instance of {@link JiraSource}
+     * Check {@link TDropboxConnectionDefinition#getRuntime()} returns instance of {@link DropboxSourceOrSink}
      */
     @Test
     public void testGetRuntime() {

@@ -74,13 +74,12 @@ public class TDropboxPutDefinitionTest {
      * Check {@link TDropboxPutDefinition#getPropertyClass()} returns class, which canonical name is
      * "org.talend.components.dropbox.tdropboxput.TDropboxPutProperties"
      */
-    @Ignore
     @Test
     public void testGetPropertyClass() {
         DropboxDefinition definition = new TDropboxPutDefinition();
         Class<?> propertyClass = definition.getPropertyClass();
         String canonicalName = propertyClass.getCanonicalName();
-        assertThat(canonicalName, equalTo("org.talend.components.dropbox.tdropboxget.TDropboxPutProperties"));
+        assertThat(canonicalName, equalTo("org.talend.components.dropbox.tdropboxput.TDropboxPutProperties"));
     }
 
     /**

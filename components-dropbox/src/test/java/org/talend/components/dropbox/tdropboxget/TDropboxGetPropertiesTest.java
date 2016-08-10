@@ -223,6 +223,11 @@ public class TDropboxGetPropertiesTest {
 
         Collection<Widget> advancedWidgets = advanced.getWidgets();
         assertThat(advancedWidgets, hasSize(2));
+
+        Widget chunkModeWidget = advanced.getWidget("chunkMode");
+        assertThat(chunkModeWidget, notNullValue());
+        Widget chunkSizeWidget = advanced.getWidget("chunkSize");
+        assertThat(chunkSizeWidget, notNullValue());
     }
 
     /**

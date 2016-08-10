@@ -14,10 +14,11 @@ package org.talend.components.dropbox.tdropboxput;
 
 import org.talend.components.api.Constants;
 import org.talend.components.api.component.ComponentDefinition;
-import org.talend.components.api.component.InputComponentDefinition;
-import org.talend.components.api.component.runtime.Source;
+import org.talend.components.api.component.OutputComponentDefinition;
+import org.talend.components.api.component.runtime.Sink;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.dropbox.DropboxDefinition;
+import org.talend.components.dropbox.runtime.DropboxPutSink;
 
 import aQute.bnd.annotation.component.Component;
 
@@ -25,7 +26,7 @@ import aQute.bnd.annotation.component.Component;
  * Dropbox put component definition
  */
 @Component(name = Constants.COMPONENT_BEAN_PREFIX + TDropboxPutDefinition.COMPONENT_NAME, provide = ComponentDefinition.class)
-public class TDropboxPutDefinition extends DropboxDefinition implements InputComponentDefinition {
+public class TDropboxPutDefinition extends DropboxDefinition implements OutputComponentDefinition {
 
     /**
      * Dropbox put component name
@@ -43,8 +44,8 @@ public class TDropboxPutDefinition extends DropboxDefinition implements InputCom
      * {@inheritDoc}
      */
     @Override
-    public Source getRuntime() {
-        return null;
+    public Sink getRuntime() {
+        return new DropboxPutSink();
     }
 
     /**
@@ -52,7 +53,7 @@ public class TDropboxPutDefinition extends DropboxDefinition implements InputCom
      */
     @Override
     public Class<? extends ComponentProperties> getPropertyClass() {
-        return null;
+        return TDropboxPutProperties.class;
     }
 
 }

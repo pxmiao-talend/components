@@ -31,7 +31,7 @@ public class DropboxGetSource extends DropboxComponentSourceOrSink implements So
 
     private static final long serialVersionUID = -3229629880478387820L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(DropboxComponentSourceOrSink.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DropboxGetSource.class);
 
     /**
      * Defines whether to save content as file

@@ -67,7 +67,7 @@ public class TDropboxPutProperties extends DropboxProperties {
     }
 
     /**
-     * Defines Dropbox Put component upload modes. Possible values are: REPLACE, RENAME
+     * Defines Dropbox Put component upload mode. Possible values are: REPLACE, RENAME
      */
     public Property<UploadMode> uploadMode = PropertyFactory.newEnum("uploadMode", UploadMode.class);
 

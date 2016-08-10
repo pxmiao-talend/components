@@ -40,7 +40,7 @@ public class DropboxGetReaderTestIT extends DropboxRuntimeTestBase {
      */
     @Before
     public void setUp() {
-        setupSchema();
+        setupGetFileSchema();
         setupConnectionProperties();
         setupGetProperties();
         setupGetSource();
@@ -71,7 +71,7 @@ public class DropboxGetReaderTestIT extends DropboxRuntimeTestBase {
         assertThat(records, hasSize(1));
         IndexedRecord record = records.get(0);
         Schema actualSchema = record.getSchema();
-        assertEquals(schema, actualSchema);
+        assertEquals(getFileSchema, actualSchema);
         String fileName = (String) record.get(0);
         assertEquals("TestFile.txt", fileName);
         String content = fileBuffer.toString();

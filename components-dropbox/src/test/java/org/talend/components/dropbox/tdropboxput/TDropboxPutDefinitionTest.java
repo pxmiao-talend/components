@@ -19,11 +19,10 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Ignore;
 import org.junit.Test;
-import org.talend.components.api.component.runtime.Source;
+import org.talend.components.api.component.runtime.Sink;
 import org.talend.components.dropbox.DropboxDefinition;
-import org.talend.components.dropbox.runtime.DropboxGetSource;
+import org.talend.components.dropbox.runtime.DropboxPutSink;
 
 /**
  * Unit-tests for {@link TDropboxPutDefinition} class
@@ -85,11 +84,11 @@ public class TDropboxPutDefinitionTest {
     /**
      * Check {@link TDropboxPutDefinition#getRuntime()} returns instance of {@link DropboxPutSink}
      */
-    //    @Test
-    //    public void testGetRuntime() {
-    //        TDropboxPutDefinition definition = new TDropboxPutDefinition();
-    //        Source source = definition.getRuntime();
-    //        assertThat(source, is(instanceOf(DropboxPutSink.class)));
-    //    }
+    @Test
+    public void testGetRuntime() {
+        TDropboxPutDefinition definition = new TDropboxPutDefinition();
+        Sink sink = definition.getRuntime();
+        assertThat(sink, is(instanceOf(DropboxPutSink.class)));
+    }
 
 }

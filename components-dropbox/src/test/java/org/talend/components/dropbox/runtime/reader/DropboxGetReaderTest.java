@@ -35,7 +35,7 @@ public class DropboxGetReaderTest extends DropboxRuntimeTestBase {
      */
     @Before
     public void setUp() {
-        setupSchema();
+        setupGetFileSchema();
         setupConnectionProperties();
         setupGetProperties();
         setupGetSource();

@@ -23,12 +23,22 @@ public final class DropboxTestConstants {
     public static String ACCESS_TOKEN = "YKEcGph8hWAAAAAAAAAAFDgTzmtSANkKgyYvARYpDHQE4j9cIhxAMWYRxGihjqeJ";
 
     /**
-     * Path to file, which can be downloaded from Dropbox servers
+     * Path to file, which can be downloaded from Dropbox server
      */
     public static String DOWNLOAD_FILE = "/TestFile.txt";
+
+    /**
+     * Path to file, which will be uploaded on Dropbox server
+     */
+    public static String UPLOAD_FILE = "/UploadFile.txt";
 
     /**
      * Path where to save downloaded file
      */
     public static String PATH_TO_SAVE = "d:/test/TestFile.txt";
+
+    /**
+     * Path to file, which should be uploaded
+     */
+    public static String PATH_TO_UPLOAD = "d:/test/UploadFile.txt";
 }

@@ -15,10 +15,13 @@ package org.talend.components.dropbox.runtime;
 import static org.talend.components.dropbox.DropboxTestConstants.ACCESS_TOKEN;
 import static org.talend.components.dropbox.DropboxTestConstants.DOWNLOAD_FILE;
 import static org.talend.components.dropbox.DropboxTestConstants.PATH_TO_SAVE;
+import static org.talend.components.dropbox.DropboxTestConstants.PATH_TO_UPLOAD;
+import static org.talend.components.dropbox.DropboxTestConstants.UPLOAD_FILE;
 import static org.talend.daikon.avro.SchemaConstants.TALEND_IS_LOCKED;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -30,6 +33,9 @@ import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.dropbox.DropboxProperties;
 import org.talend.components.dropbox.tdropboxconnection.TDropboxConnectionProperties;
 import org.talend.components.dropbox.tdropboxget.TDropboxGetProperties;
+import org.talend.components.dropbox.tdropboxput.ContentType;
+import org.talend.components.dropbox.tdropboxput.TDropboxPutProperties;
+import org.talend.components.dropbox.tdropboxput.UploadMode;
 import org.talend.daikon.avro.AvroRegistry;
 
 /**
@@ -39,7 +45,9 @@ public class DropboxRuntimeTestBase {
 
     protected RuntimeContainer container = new DefaultComponentRuntimeContainerImpl();
 
-    protected Schema schema;
+    protected Schema getFileSchema;
+
+    protected Schema putFileStringSchema;
 
     protected TDropboxConnectionProperties connectionProperties;
 
@@ -47,9 +55,11 @@ public class DropboxRuntimeTestBase {
 
     protected TDropboxGetProperties getProperties;
 
+    protected TDropboxPutProperties putProperties;
+
     protected DropboxGetSource getSource;
 
-    protected void setupSchema() {
+    protected void setupGetFileSchema() {
         // get Schema for String class
         AvroRegistry registry = new AvroRegistry();
         Schema stringSchema = registry.getConverter(String.class).getSchema();
@@ -58,8 +68,18 @@ public class DropboxRuntimeTestBase {
         Schema.Field fileNameField = new Schema.Field("fileName", stringSchema, null, null, Order.ASCENDING);
         Schema.Field contentField = new Schema.Field("content", bytesSchema, null, null, Order.ASCENDING);
         List<Schema.Field> fields = Arrays.asList(fileNameField, contentField);
-        schema = Schema.createRecord("dropbox", null, null, false, fields);
-        schema.addProp(TALEND_IS_LOCKED, "true");
+        getFileSchema = Schema.createRecord("dropbox", null, null, false, fields);
+        getFileSchema.addProp(TALEND_IS_LOCKED, "true");
+    }
+
+    protected void setupPutFileStringSchema() {
+        // get Schema for String class
+        AvroRegistry registry = new AvroRegistry();
+        Schema stringSchema = registry.getConverter(String.class).getSchema();
+
+        Schema.Field contentField = new Schema.Field("content", stringSchema, null, null, Order.ASCENDING);
+        putFileStringSchema = Schema.createRecord("dropbox", null, null, false, Collections.singletonList(contentField));
+        putFileStringSchema.addProp(TALEND_IS_LOCKED, "true");
     }
 
     /**
@@ -97,9 +117,22 @@ public class DropboxRuntimeTestBase {
         getProperties.connection = connectionProperties;
         getProperties.saveAsFile.setValue(false);
         getProperties.saveTo.setValue(PATH_TO_SAVE);
-        getProperties.schema.schema.setValue(schema);
+        getProperties.schema.schema.setValue(getFileSchema);
         getProperties.chunkMode.setValue(true);
         getProperties.chunkSize.setValue(8192);
+    }
+
+    /**
+     * Creates test instance of {@link TDropboxPutProperties} and sets it with test values
+     */
+    protected void setupPutProperties() {
+        putProperties = new TDropboxPutProperties("root");
+        putProperties.path.setValue(UPLOAD_FILE);
+        putProperties.connection = connectionProperties;
+        putProperties.uploadMode.setValue(UploadMode.RENAME);
+        putProperties.uploadFrom.setValue(ContentType.STRING);
+        putProperties.localFile.setValue(PATH_TO_UPLOAD);
+        putProperties.schema.schema.setValue(putFileStringSchema);
     }
 
     /**

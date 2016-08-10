@@ -37,7 +37,7 @@ public class DropboxGetSourceTest extends DropboxRuntimeTestBase {
      */
     @Before
     public void setUp() {
-        setupSchema();
+        setupGetFileSchema();
         setupConnectionProperties();
         setupGetProperties();
     }
@@ -55,7 +55,7 @@ public class DropboxGetSourceTest extends DropboxRuntimeTestBase {
         String saveTo = source.getSaveTo();
         assertEquals("d:/test/TestFile.txt", saveTo);
         Schema actualSchema = source.getSchema();
-        assertEquals(schema, actualSchema);
+        assertEquals(getFileSchema, actualSchema);
         boolean chunkMode = source.isChunkMode();
         assertTrue(chunkMode);
         int chunkSize = source.getChunkSize();

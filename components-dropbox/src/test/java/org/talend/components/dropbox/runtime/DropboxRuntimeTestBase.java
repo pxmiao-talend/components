@@ -59,6 +59,8 @@ public class DropboxRuntimeTestBase {
 
     protected DropboxGetSource getSource;
 
+    protected DropboxPutSink putSink;
+
     protected void setupGetFileSchema() {
         // get Schema for String class
         AvroRegistry registry = new AvroRegistry();
@@ -141,5 +143,13 @@ public class DropboxRuntimeTestBase {
     protected void setupGetSource() {
         getSource = new DropboxGetSource();
         getSource.initialize(container, getProperties);
+    }
+
+    /**
+     * Creates test instance of {@link DropboxPutSink} and sets it with test values
+     */
+    protected void setupPutSink() {
+        putSink = new DropboxPutSink();
+        getSource.initialize(container, putProperties);
     }
 }

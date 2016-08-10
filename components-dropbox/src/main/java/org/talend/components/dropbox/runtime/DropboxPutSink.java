@@ -24,6 +24,9 @@ import org.talend.components.dropbox.tdropboxput.ContentType;
 import org.talend.components.dropbox.tdropboxput.TDropboxPutProperties;
 import org.talend.components.dropbox.tdropboxput.UploadMode;
 
+/**
+ * Dropbox Put component {@link Sink}
+ */
 public class DropboxPutSink extends DropboxComponentSourceOrSink implements Sink {
 
     private static final long serialVersionUID = 5956598129531199826L;
@@ -76,8 +79,7 @@ public class DropboxPutSink extends DropboxComponentSourceOrSink implements Sink
      */
     @Override
     public WriteOperation<?> createWriteOperation() {
-        // TODO Auto-generated method stub
-        return null;
+        return new DropboxWriteOperation(this);
     }
 
     /**

@@ -36,16 +36,6 @@ public class FileInputDefinition extends AbstractComponentDefinition  {
         return new Property[] { };
     }
 
-    @Override
-    public String getPngImagePath(ComponentImageType imageType) {
-        switch (imageType) {
-        case PALLETE_ICON_32X32:
-            return "fileReader_icon32.png"; //$NON-NLS-1$
-        default:
-            return "fileReader_icon32.png"; //$NON-NLS-1$
-        }
-    }
-
     public String getMavenGroupId() {
         return "org.talend.components";
     }

@@ -4,74 +4,80 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
+import org.apache.avro.generic.IndexedRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.talend.components.api.container.RuntimeContainer;
-import org.talend.components.fileinput.FileInputDefinition;
 import org.talend.components.api.component.runtime.AbstractBoundedReader;
 import org.talend.components.api.component.runtime.BoundedSource;
 import org.talend.components.api.component.runtime.Result;
+import org.talend.components.api.container.RuntimeContainer;
+import org.talend.components.fileinput.FileInputDefinition;
+import org.talend.components.fileinput.FileInputProperties;
 
 /**
  * Simple implementation of a reader.
  */
-public class FileInputReader extends AbstractBoundedReader<String> {
+public class FileInputReader extends AbstractBoundedReader<IndexedRecord> {
 
-    /** Default serial version UID. */
-    private static final long serialVersionUID = 1L;
+	/** Default serial version UID. */
+	private static final long serialVersionUID = 1L;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileInputDefinition.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(FileInputDefinition.class);
 
-    private RuntimeContainer container;
+	private RuntimeContainer container;
 
-    private final String filename;
+	private boolean started = false;
 
-    private boolean started = false;
+	private BufferedReader reader = null;
 
-    private BufferedReader reader = null;
+	private transient IndexedRecord currentIndexRecord;
 
-    private transient String current;
+	private transient String currentRow;
 
-    public FileInputReader(RuntimeContainer container, BoundedSource source, String filename) {
-        super(source);
-        this.container = container;
-        this.filename = filename;
-    }
+	FileInputProperties properties;
 
-    @Override
-    public boolean start() throws IOException {
-        started = true;
-        LOGGER.debug("open: " + filename); //$NON-NLS-1$
-        reader = new BufferedReader(new FileReader(filename));
-        current = reader.readLine();
-        return current != null;
-    }
+	public FileInputReader(RuntimeContainer container, BoundedSource source, FileInputProperties properties) {
+		super(source);
+		this.container = container;
+		this.properties = properties;
+	}
 
-    @Override
-    public boolean advance() throws IOException {
-        current = reader.readLine();
-        return current != null;
-    }
+	@Override
+	public boolean start() throws IOException {
+		started = true;
+		LOGGER.debug("open: " + properties.filename.getStringValue()); //$NON-NLS-1$
+		reader = new BufferedReader(new FileReader(properties.filename.getStringValue()));
+		currentRow = reader.readLine();
+		return currentRow != null;
+	}
 
-    @Override
-    public String getCurrent() throws NoSuchElementException {
-        if (!started) {
-            throw new NoSuchElementException();
-        }
-        return current;
-    }
+	@Override
+	public boolean advance() throws IOException {
+		currentRow = reader.readLine();
+		return currentRow != null;
+	}
 
-    @Override
-    public void close() throws IOException {
-        reader.close();
-        LOGGER.debug("close: " + filename); //$NON-NLS-1$
-    }
+	@Override
+	public IndexedRecord getCurrent() {
+		String[] values = currentRow.split(",");
 
-    @Override
-    public Map<String, Object> getReturnValues() {
-        return new Result().toMap();
-    }
+		FileInputAdaptorFactory factory = new FileInputAdaptorFactory();
+		factory.setSchema(properties.schema.schema.getValue());
+
+		currentIndexRecord = factory.convertToAvro(values);
+		return currentIndexRecord;
+	}
+
+	@Override
+	public void close() throws IOException {
+		reader.close();
+		LOGGER.debug("close: " + properties.filename.getStringValue()); //$NON-NLS-1$
+	}
+
+	@Override
+	public Map<String, Object> getReturnValues() {
+		return new Result().toMap();
+	}
 
 }

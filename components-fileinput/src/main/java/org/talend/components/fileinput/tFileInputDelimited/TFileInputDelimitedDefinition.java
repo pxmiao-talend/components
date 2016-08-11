@@ -2,6 +2,7 @@ package org.talend.components.fileinput.tFileInputDelimited;
 
 import org.talend.components.api.Constants;
 import org.talend.components.api.component.ComponentDefinition;
+import org.talend.components.api.component.ComponentImageType;
 import org.talend.components.api.component.InputComponentDefinition;
 import org.talend.components.api.component.runtime.Source;
 import org.talend.components.api.properties.ComponentProperties;

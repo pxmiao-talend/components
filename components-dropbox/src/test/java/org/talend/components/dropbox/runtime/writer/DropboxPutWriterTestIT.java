@@ -55,7 +55,7 @@ public class DropboxPutWriterTestIT extends DropboxRuntimeTestBase {
         DropboxPutWriter writer = writeOperation.createWriter(container);
         writer.open("putUid");
     }
-    
+
     /**
      * Checks {@link DropboxPutWriter#write()} upload file from String content if {@link ContentType#STRING} is specified
      */
@@ -67,7 +67,7 @@ public class DropboxPutWriterTestIT extends DropboxRuntimeTestBase {
         String content = "This is string content of file";
         record.put(0, content);
         changeContentTypeTo(ContentType.STRING);
-        
+
         DropboxPutWriter writer = writeOperation.createWriter(container);
         writer.open("putUid");
         writer.write(record);

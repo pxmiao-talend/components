@@ -48,10 +48,10 @@ public class DropboxPutSink extends DropboxComponentSourceOrSink implements Sink
      */
     private String filePath;
 
-    //    /**
-    //     * Data schema
-    //     */
-    //    private Schema schema;
+    /**
+     * Locked component schema. It is specified, when user choose content type 
+     */
+    private Schema componentSchema;
 
     /**
      * Initializes this {@link SourceOrSink} with user specified properties
@@ -68,7 +68,7 @@ public class DropboxPutSink extends DropboxComponentSourceOrSink implements Sink
             uploadMode = putProperties.uploadMode.getValue();
             contentType = putProperties.uploadFrom.getValue();
             filePath = putProperties.localFile.getValue();
-            //            schema = putProperties.schema.schema.getValue();
+            componentSchema = putProperties.schema.schema.getValue();
         } else {
             LOG.debug("Wrong properties type");
         }
@@ -109,8 +109,13 @@ public class DropboxPutSink extends DropboxComponentSourceOrSink implements Sink
         return filePath;
     }
 
-    //    public Schema getSchema() {
-    //        return schema;
-    //    }
+    /**
+     * Returns locked component schema, which is specified, when user choose content type
+     * 
+     * @return component schema
+     */
+    public Schema getComponentSchema() {
+        return componentSchema;
+    }
 
 }

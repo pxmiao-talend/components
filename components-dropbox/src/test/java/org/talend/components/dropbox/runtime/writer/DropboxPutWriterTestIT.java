@@ -17,6 +17,8 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.talend.components.api.component.runtime.Result;
+import org.talend.components.dropbox.avro.DropboxIndexedRecord;
 import org.talend.components.dropbox.runtime.DropboxRuntimeTestBase;
 import org.talend.components.dropbox.tdropboxput.ContentType;
 
@@ -53,5 +55,31 @@ public class DropboxPutWriterTestIT extends DropboxRuntimeTestBase {
         DropboxPutWriter writer = writeOperation.createWriter(container);
         writer.open("putUid");
     }
+    
+    /**
+     * Checks {@link DropboxPutWriter#write()} upload file from String content if {@link ContentType#STRING} is specified
+     */
+    @Ignore
+    @Test
+    public void testUploadFromString() throws IOException {
+        // prepare test IndexedRecord
+        DropboxIndexedRecord record = new DropboxIndexedRecord(putFileStringSchema);
+        String content = "This is string content of file";
+        record.put(0, content);
+        changeContentTypeTo(ContentType.STRING);
+        
+        DropboxPutWriter writer = writeOperation.createWriter(container);
+        writer.open("putUid");
+        writer.write(record);
+        Result result = writer.close();
+    }
 
+    /**
+     * Changes contentType for different test-case
+     */
+    private void changeContentTypeTo(ContentType contentType) {
+        putProperties.uploadFrom.setValue(contentType);
+        setupPutSink();
+        setupWriteOperation();
+    }
 }

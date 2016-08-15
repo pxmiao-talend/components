@@ -20,6 +20,7 @@ import org.talend.components.api.component.runtime.Sink;
 import org.talend.components.api.component.runtime.WriteOperation;
 import org.talend.components.api.component.runtime.Writer;
 import org.talend.components.api.container.RuntimeContainer;
+import org.talend.components.dropbox.runtime.writer.DropboxPutWriter;
 
 public class DropboxWriteOperation implements WriteOperation<Result> {
 
@@ -62,10 +63,13 @@ public class DropboxWriteOperation implements WriteOperation<Result> {
         return Collections.EMPTY_MAP;
     }
 
+    /**
+     * Returns instance of {@link DropboxPutWriter}, which can upload files both from local file 
+     * and from String/byte[] record column 
+     */
     @Override
-    public Writer<Result> createWriter(RuntimeContainer adaptor) {
-        // TODO Auto-generated method stub
-        return null;
+    public DropboxPutWriter createWriter(RuntimeContainer adaptor) {
+        return new DropboxPutWriter(this);
     }
 
     /**

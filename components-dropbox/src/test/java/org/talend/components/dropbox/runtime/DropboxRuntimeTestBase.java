@@ -61,6 +61,8 @@ public class DropboxRuntimeTestBase {
 
     protected DropboxPutSink putSink;
 
+    protected DropboxWriteOperation writeOperation;
+
     protected void setupGetFileSchema() {
         // get Schema for String class
         AvroRegistry registry = new AvroRegistry();
@@ -150,6 +152,11 @@ public class DropboxRuntimeTestBase {
      */
     protected void setupPutSink() {
         putSink = new DropboxPutSink();
-        getSource.initialize(container, putProperties);
+        putSink.initialize(container, putProperties);
+    }
+
+    protected void setupWriteOperation() {
+        writeOperation = putSink.createWriteOperation();
+        writeOperation.initialize(container);
     }
 }

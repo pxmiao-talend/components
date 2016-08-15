@@ -12,10 +12,28 @@
 // ============================================================================
 package org.talend.components.dropbox.tdropboxput;
 
+import com.dropbox.core.v2.files.WriteMode;
+
 /**
  * Dropbox Put component Upload Modes
+ * It corresponds to Dropbox API {@link WriteMode} modes
+ * Provides conversion method from {@link UploadMode} to {@link WriteMode}
  */
 public enum UploadMode {
-    RENAME,
-    REPLACE
+    RENAME {
+
+        @Override
+        public WriteMode toWriteMode() {
+            return WriteMode.ADD;
+        }
+    },
+    REPLACE {
+
+        @Override
+        public WriteMode toWriteMode() {
+            return WriteMode.OVERWRITE;
+        }
+    };
+
+    public abstract WriteMode toWriteMode();
 }

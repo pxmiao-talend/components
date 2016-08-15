@@ -78,7 +78,7 @@ public class DropboxPutSink extends DropboxComponentSourceOrSink implements Sink
      * Returns an instance of a {@link WriteOperation} that can write to this Sink.
      */
     @Override
-    public WriteOperation<?> createWriteOperation() {
+    public DropboxWriteOperation createWriteOperation() {
         return new DropboxWriteOperation(this);
     }
 

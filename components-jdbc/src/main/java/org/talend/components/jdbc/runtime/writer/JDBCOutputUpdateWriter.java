@@ -1,7 +1,6 @@
 package org.talend.components.jdbc.runtime.writer;
 
 import java.io.IOException;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -17,8 +16,6 @@ import org.talend.components.jdbc.runtime.type.JDBCMapping;
 public class JDBCOutputUpdateWriter extends JDBCOutputWriter {
 
     private String sql;
-
-    private PreparedStatement statement;
 
     public JDBCOutputUpdateWriter(WriteOperation<Result> writeOperation, RuntimeContainer runtime) {
         super(writeOperation, runtime);
@@ -52,15 +49,25 @@ public class JDBCOutputUpdateWriter extends JDBCOutputWriter {
             for (Schema.Field key : keys) {
                 JDBCMapping.setValue(statement, key, input.get(key.pos()));
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
+        try {
             execute(input, statement);
             executeCommit();
         } catch (SQLException e) {
-            if (useBatch) {
+            if (dieOnError || useBatch) {
                 throw new RuntimeException(e);
             }
 
             handleReject(input, e);
+        }
+
+        try {
+            executeCommit();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 

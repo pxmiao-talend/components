@@ -72,6 +72,7 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties
 
     public SchemaProperties main = new SchemaProperties("main") {
 
+        @SuppressWarnings("unused")
         public void afterSchema() {
             updateOutputSchemas();
         }

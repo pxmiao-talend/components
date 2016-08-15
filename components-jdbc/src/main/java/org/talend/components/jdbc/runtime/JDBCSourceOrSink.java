@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.avro.Schema;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.SourceOrSink;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
@@ -30,8 +28,8 @@ import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.jdbc.ComponentConstants;
 import org.talend.components.jdbc.JDBCConnectionInfoProperties;
 import org.talend.components.jdbc.ReferAnotherComponent;
-import org.talend.components.jdbc.module.JDBCConnectionModule;
 import org.talend.components.jdbc.runtime.type.JDBCAvroRegistry;
+import org.talend.components.jdbc.tjdbcconnection.TJDBCConnectionProperties;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.SimpleNamedThing;
 import org.talend.daikon.properties.ValidationResult;
@@ -39,8 +37,6 @@ import org.talend.daikon.properties.ValidationResult;
 public class JDBCSourceOrSink implements SourceOrSink {
 
     private static final long serialVersionUID = -1730391293657968628L;
-
-    private transient static final Logger LOG = LoggerFactory.getLogger(JDBCSourceOrSink.class);
 
     public JDBCConnectionInfoProperties properties;
 
@@ -126,27 +122,23 @@ public class JDBCSourceOrSink implements SourceOrSink {
             if (refComponentId != null && runtime != null) {
                 Object existedConn = runtime.getComponentData(refComponentId, ComponentConstants.CONNECTION_KEY);
                 if (existedConn == null) {
-                    throw new RuntimeException("Referenced component: " + refComponentId + " not connected");
+                    throw new RuntimeException("Referenced component: " + refComponentId + " is not connected");
                 }
                 return (Connection) existedConn;
             } else {
-                return createConnection();
+                Connection conn = JDBCTemplate.createConnection(properties.getJDBCConnectionModule());
+                conn.setAutoCommit(false);
+                return conn;
             }
         } else {// connection component
-            Connection conn = createConnection();
+            Connection conn = JDBCTemplate.createConnection(properties.getJDBCConnectionModule());
+            boolean autoCommit = ((TJDBCConnectionProperties) properties).autocommit.getValue();
+            conn.setAutoCommit(autoCommit);
             if (runtime != null) {
                 runtime.setComponentData(runtime.getCurrentComponentId(), ComponentConstants.CONNECTION_KEY, conn);
             }
             return conn;
         }
-    }
-
-    private Connection createConnection() throws ClassNotFoundException, SQLException {
-        JDBCConnectionModule connectionInfo = properties.getJDBCConnectionModule();
-        java.lang.Class.forName(connectionInfo.driverClass.getValue());
-        Connection conn = java.sql.DriverManager.getConnection(connectionInfo.jdbcUrl.getValue(),
-                connectionInfo.userPassword.userId.getValue(), connectionInfo.userPassword.password.getValue());
-        return conn;
     }
 
 }

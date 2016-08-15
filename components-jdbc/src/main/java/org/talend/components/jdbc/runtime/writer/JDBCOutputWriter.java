@@ -23,21 +23,16 @@ import java.util.List;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.IndexedRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.component.runtime.WriteOperation;
 import org.talend.components.api.component.runtime.WriterWithFeedback;
 import org.talend.components.api.container.RuntimeContainer;
-import org.talend.components.jdbc.ReferAnotherComponent;
 import org.talend.components.jdbc.runtime.JDBCSink;
 import org.talend.components.jdbc.runtime.type.JDBCAvroRegistry;
 import org.talend.components.jdbc.tjdbcoutput.TJDBCOutputProperties;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
 
 abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, IndexedRecord, IndexedRecord> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(JDBCOutputWriter.class);
 
     private WriteOperation<Result> writeOperation;
 
@@ -69,11 +64,27 @@ abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, Ind
 
     protected int commitCount;
 
+    protected boolean useExistedConnection;
+
+    protected boolean dieOnError;
+
+    protected PreparedStatement statement;
+
     public JDBCOutputWriter(WriteOperation<Result> writeOperation, RuntimeContainer runtime) {
         this.writeOperation = writeOperation;
         this.runtime = runtime;
         sink = (JDBCSink) writeOperation.getSink();
         properties = (TJDBCOutputProperties) sink.properties;
+
+        useBatch = properties.useBatch.getValue();
+        batchSize = properties.batchSize.getValue();
+
+        useExistedConnection = properties.getReferencedComponentId() != null;
+        if (!useExistedConnection) {
+            commitEvery = properties.commitEvery.getValue();
+        }
+
+        dieOnError = properties.dieOnError.getValue();
     }
 
     abstract public void open(String uId) throws IOException;
@@ -82,8 +93,15 @@ abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, Ind
 
     @Override
     public Result close() throws IOException {
-        String refComponentId = ((ReferAnotherComponent) properties).getReferencedComponentId();
-        if (refComponentId == null) {
+        if (batchCount > 0) {
+            try {
+                int[] batchResult = statement.executeBatch();
+            } catch (SQLException e) {
+                throw new IOException(e);
+            }
+        }
+
+        if (!useExistedConnection) {
             try {
                 if (commitCount > 0) {
                     conn.commit();
@@ -150,6 +168,10 @@ abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, Ind
     }
 
     protected void executeCommit() throws SQLException {
+        if (useExistedConnection) {
+            return;
+        }
+
         if (commitCount < commitEvery) {
             commitCount++;
         } else {
@@ -169,7 +191,8 @@ abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, Ind
             }
         } else {
             int insertResult = statement.executeUpdate();
-            handleSuccess(input);
         }
+
+        handleSuccess(input);
     }
 }

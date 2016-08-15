@@ -59,7 +59,7 @@ public class JDBCTestCase {
 
         initSource(props);
 
-        Connection conn = JDBCTemplate.connect(db_input_properties.getJDBCConnectionModule());
+        Connection conn = JDBCTemplate.createConnection(db_input_properties.getJDBCConnectionModule());
 
         try {
             dropTestTable(conn);

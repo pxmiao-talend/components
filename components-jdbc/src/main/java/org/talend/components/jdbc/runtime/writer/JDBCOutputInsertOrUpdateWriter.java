@@ -93,14 +93,18 @@ public class JDBCOutputInsertOrUpdateWriter extends JDBCOutputWriter {
 
                 execute(input, statementInsert);
             }
-
-            executeCommit();
         } catch (SQLException e) {
-            if (useBatch) {
+            if (dieOnError || useBatch) {
                 throw new RuntimeException(e);
             }
 
             handleReject(input, e);
+        }
+
+        try {
+            executeCommit();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 

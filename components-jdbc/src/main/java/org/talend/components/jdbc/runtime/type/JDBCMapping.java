@@ -16,8 +16,7 @@ public class JDBCMapping {
         } else if (AvroUtils.isSameType(f.schema(), AvroUtils._int())) {
             statement.setInt(index, (Integer) value);
         } else if (AvroUtils.isSameType(f.schema(), AvroUtils._date())) {
-            // TODO
-            // statement.setTimestamp(index, null);
+            statement.setTimestamp(index, new java.sql.Timestamp(((java.util.Date) value).getTime()));
         } else if (AvroUtils.isSameType(f.schema(), AvroUtils._decimal())) {
             statement.setBigDecimal(index, (BigDecimal) value);
         } else if (AvroUtils.isSameType(f.schema(), AvroUtils._long())) {

@@ -58,6 +58,7 @@ public class TJDBCOutputDefinition extends AbstractComponentDefinition implement
     }
 
     // TODO add more return properties
+    @SuppressWarnings("rawtypes")
     @Override
     public Property[] getReturnProperties() {
         return new Property[] { RETURN_ERROR_MESSAGE_PROP, RETURN_TOTAL_RECORD_COUNT_PROP };

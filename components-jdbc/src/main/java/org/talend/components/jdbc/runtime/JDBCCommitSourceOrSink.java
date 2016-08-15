@@ -17,8 +17,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.avro.Schema;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.SourceOrSink;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.properties.ComponentProperties;
@@ -29,7 +27,7 @@ import org.talend.daikon.properties.ValidationResult;
 
 public class JDBCCommitSourceOrSink implements SourceOrSink {
 
-    private transient static final Logger LOG = LoggerFactory.getLogger(JDBCCommitSourceOrSink.class);
+    private static final long serialVersionUID = -7226558840084293603L;
 
     public TJDBCCommitProperties properties;
 

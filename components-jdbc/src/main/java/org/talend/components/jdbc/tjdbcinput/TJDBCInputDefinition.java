@@ -60,6 +60,7 @@ public class TJDBCInputDefinition extends AbstractComponentDefinition implements
 
     static final Property<String> RETURN_QUERY_PROP = PropertyFactory.newString(RETURN_ERROR_MESSAGE);
 
+    @SuppressWarnings("rawtypes")
     @Override
     public Property[] getReturnProperties() {
         return new Property[] { RETURN_ERROR_MESSAGE_PROP, RETURN_TOTAL_RECORD_COUNT_PROP, RETURN_QUERY_PROP };

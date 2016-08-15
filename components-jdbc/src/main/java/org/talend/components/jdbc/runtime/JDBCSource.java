@@ -3,8 +3,6 @@ package org.talend.components.jdbc.runtime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.BoundedReader;
 import org.talend.components.api.component.runtime.BoundedSource;
 import org.talend.components.api.container.RuntimeContainer;
@@ -15,12 +13,11 @@ public class JDBCSource extends JDBCSourceOrSink implements BoundedSource {
 
     private static final long serialVersionUID = -9111994542816954024L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(JDBCSource.class);
-
+    @SuppressWarnings("rawtypes")
     @Override
-    public BoundedReader createReader(RuntimeContainer adaptor) {
+    public BoundedReader createReader(RuntimeContainer container) {
         if (properties instanceof TJDBCInputProperties) {
-            JDBCInputReader reader = new JDBCInputReader(adaptor, this, (TJDBCInputProperties) properties);
+            JDBCInputReader reader = new JDBCInputReader(container, this, (TJDBCInputProperties) properties);
             return reader;
         }
         return null;

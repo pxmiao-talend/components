@@ -1,7 +1,6 @@
 package org.talend.components.jdbc.runtime.writer;
 
 import java.io.IOException;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -17,8 +16,6 @@ import org.talend.components.jdbc.runtime.type.JDBCMapping;
 public class JDBCOutputDeleteWriter extends JDBCOutputWriter {
 
     private String sql;
-
-    private PreparedStatement statement;
 
     public JDBCOutputDeleteWriter(WriteOperation<Result> writeOperation, RuntimeContainer runtime) {
         super(writeOperation, runtime);
@@ -47,15 +44,24 @@ public class JDBCOutputDeleteWriter extends JDBCOutputWriter {
             for (Schema.Field key : keys) {
                 JDBCMapping.setValue(statement, key, input.get(key.pos()));
             }
-
-            execute(input, statement);
-            executeCommit();
         } catch (SQLException e) {
-            if (useBatch) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            execute(input, statement);
+        } catch (SQLException e) {
+            if (dieOnError || useBatch) {
                 throw new RuntimeException(e);
             }
 
             handleReject(input, e);
+        }
+
+        try {
+            executeCommit();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 

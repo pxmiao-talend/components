@@ -52,6 +52,7 @@ public class TJDBCCloseDefinition extends AbstractComponentDefinition implements
         return "components-jdbc";
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public Property[] getReturnProperties() {
         return new Property[] { RETURN_ERROR_MESSAGE_PROP };

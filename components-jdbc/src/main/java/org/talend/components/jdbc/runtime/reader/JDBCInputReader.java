@@ -22,23 +22,20 @@ import java.util.NoSuchElementException;
 
 import org.apache.avro.Schema;
 import org.apache.avro.generic.IndexedRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.AbstractBoundedReader;
-import org.talend.components.api.component.runtime.BoundedSource;
+import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.jdbc.runtime.JDBCSource;
-import org.talend.components.jdbc.runtime.JDBCTemplate;
+import org.talend.components.jdbc.runtime.type.JDBCAvroRegistry;
 import org.talend.components.jdbc.runtime.type.JDBCResultSetIndexedRecordConverter;
 import org.talend.components.jdbc.tjdbcinput.TJDBCInputProperties;
+import org.talend.daikon.avro.AvroUtils;
 
 public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JDBCInputReader.class);
-
     protected TJDBCInputProperties properties;
 
-    protected RuntimeContainer adaptor;
+    protected RuntimeContainer container;
 
     protected Connection conn;
 
@@ -48,20 +45,30 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
 
     private transient Schema querySchema;
 
-    public JDBCInputReader(RuntimeContainer adaptor, JDBCSource source, TJDBCInputProperties props) {
+    private JDBCSource source;
+
+    private Statement statement;
+
+    private Result result;
+
+    public JDBCInputReader(RuntimeContainer container, JDBCSource source, TJDBCInputProperties props) {
         super(source);
-        this.adaptor = adaptor;
+        this.container = container;
         this.properties = props;
+        source = (JDBCSource) getCurrentSource();
     }
 
-    private Schema getSchema() throws IOException {
-        if (null == querySchema) {
-            querySchema = new Schema.Parser().parse(properties.schema.schema.getStringValue());
+    private Schema getSchema() throws IOException, SQLException {
+        if (querySchema == null) {
+            querySchema = properties.schema.schema.getValue();
+            if (AvroUtils.isIncludeAllFields(querySchema)) {
+                querySchema = JDBCAvroRegistry.get().inferSchema(resultSet.getMetaData());
+            }
         }
         return querySchema;
     }
 
-    private JDBCResultSetIndexedRecordConverter getFactory() throws IOException {
+    private JDBCResultSetIndexedRecordConverter getFactory() throws IOException, SQLException {
         if (null == factory) {
             factory = new JDBCResultSetIndexedRecordConverter();
             factory.setSchema(getSchema());
@@ -71,9 +78,15 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
 
     @Override
     public boolean start() throws IOException {
+        result = new Result();
         try {
-            conn = JDBCTemplate.connect(properties.getJDBCConnectionModule());
-            Statement statement = conn.createStatement();
+            conn = source.connect(container);
+            statement = conn.createStatement();
+
+            if (properties.useCursor.getValue()) {
+                statement.setFetchSize(properties.cursor.getValue());
+            }
+
             resultSet = statement.executeQuery(properties.sql.getValue());
             return resultSet.next();
         } catch (Exception e) {
@@ -84,6 +97,7 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
 
     @Override
     public boolean advance() throws IOException {
+        result.totalCount++;
         try {
             return resultSet.next();
         } catch (SQLException e) {
@@ -96,20 +110,16 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
     public IndexedRecord getCurrent() throws NoSuchElementException {
         try {
             return getFactory().convertToAvro(resultSet);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public org.joda.time.Instant getCurrentTimestamp() throws NoSuchElementException {
-        return null;
     }
 
     @Override
     public void close() throws IOException {
         try {
             resultSet.close();
+            statement.close();
             conn.close();
         } catch (SQLException e) {
             // TODO Auto-generated catch block
@@ -118,19 +128,8 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
     }
 
     @Override
-    public Double getFractionConsumed() {
-        return null;
-    }
-
-    @Override
-    public BoundedSource splitAtFraction(double fraction) {
-        return null;
-    }
-
-    @Override
     public Map<String, Object> getReturnValues() {
-        // TODO Auto-generated method stub
-        return null;
+        return result.toMap();
     }
 
 }

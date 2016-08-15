@@ -1,7 +1,6 @@
 package org.talend.components.jdbc.runtime.writer;
 
 import java.io.IOException;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -17,8 +16,6 @@ public class JDBCOutputInsertWriter extends JDBCOutputWriter {
 
     private String sql;
 
-    private PreparedStatement statement;
-
     public JDBCOutputInsertWriter(WriteOperation<Result> writeOperation, RuntimeContainer runtime) {
         super(writeOperation, runtime);
     }
@@ -33,10 +30,6 @@ public class JDBCOutputInsertWriter extends JDBCOutputWriter {
         } catch (ClassNotFoundException | SQLException e) {
             throw new RuntimeException(e);
         }
-
-        useBatch = properties.useBatch.getValue();
-        batchSize = properties.batchSize.getValue();
-        commitEvery = properties.commitEvery.getValue();
     }
 
     @Override
@@ -49,15 +42,24 @@ public class JDBCOutputInsertWriter extends JDBCOutputWriter {
             for (Schema.Field f : fields) {
                 JDBCMapping.setValue(statement, f, input.get(f.pos()));
             }
-
-            execute(input, statement);
-            executeCommit();
         } catch (SQLException e) {
-            if (useBatch) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            execute(input, statement);
+        } catch (SQLException e) {
+            if (dieOnError || useBatch) {
                 throw new RuntimeException(e);
             }
 
             handleReject(input, e);
+        }
+
+        try {
+            executeCommit();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 

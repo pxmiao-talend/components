@@ -2,6 +2,7 @@ package org.talend.components.jdbc.runtime.type;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 import org.apache.avro.Schema;
@@ -37,6 +38,111 @@ public class JDBCAvroRegistry extends AvroRegistry {
 
         });
 
+        registerSchemaInferrer(ResultSetMetaData.class, new SerializableFunction<ResultSetMetaData, Schema>() {
+
+            /** Default serial version UID. */
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public Schema apply(ResultSetMetaData t) {
+                try {
+                    return inferSchemaResultSetMetaData(t);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+        });
+
+    }
+
+    private Schema inferSchemaResultSetMetaData(ResultSetMetaData metadata) throws SQLException {
+        FieldAssembler<Schema> builder = SchemaBuilder.builder().record("DYNAMIC").fields();
+
+        int count = metadata.getColumnCount();
+        for (int i = 0; i < count; i++) {
+            Schema base;
+
+            int size = metadata.getPrecision(i);
+            int scale = metadata.getScale(i);
+
+            int dbtype = metadata.getColumnType(i);
+            base = sqlType2Avro(size, scale, dbtype);
+
+            base.addProp(SchemaConstants.TALEND_COLUMN_DB_TYPE, dbtype);
+
+            boolean nullable = ResultSetMetaData.columnNullable == metadata.isNullable(i);
+
+            Schema fieldSchema = nullable ? SchemaBuilder.builder().nullable().type(base) : base;
+
+            String dbColumnName = metadata.getColumnName(i);
+            fieldSchema.addProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME, dbColumnName);
+
+            builder = builder.name(metadata.getColumnLabel(i)).type(fieldSchema).noDefault();
+        }
+
+        return builder.endRecord();
+    }
+
+    private Schema sqlType2Avro(int size, int scale, int dbtype) {
+        Schema base;
+        switch (dbtype) {
+        case java.sql.Types.VARCHAR:
+            base = AvroUtils._string();
+            base.addProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH, size);
+            break;
+        case java.sql.Types.INTEGER:
+            base = AvroUtils._int();
+            base.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
+            break;
+        case java.sql.Types.DECIMAL:
+            base = AvroUtils._decimal();
+            base.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
+            base.addProp(SchemaConstants.TALEND_COLUMN_SCALE, scale);
+            break;
+        case java.sql.Types.BIGINT:
+            base = AvroUtils._decimal();
+            base.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
+            break;
+        case java.sql.Types.NUMERIC:
+            base = AvroUtils._decimal();
+            base.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
+            base.addProp(SchemaConstants.TALEND_COLUMN_SCALE, scale);
+            break;
+        case java.sql.Types.TINYINT:
+            base = AvroUtils._int();
+            base.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
+            break;
+        case java.sql.Types.DOUBLE:
+            base = AvroUtils._double();
+            break;
+        case java.sql.Types.FLOAT:
+            base = AvroUtils._float();
+            break;
+        case java.sql.Types.DATE:
+            base = AvroUtils._date();
+            base.addProp(SchemaConstants.TALEND_COLUMN_PATTERN, "yyyy-MM-dd"); //$NON-NLS-1$
+            break;
+        case java.sql.Types.TIME:
+            base = AvroUtils._date();
+            base.addProp(SchemaConstants.TALEND_COLUMN_PATTERN, "HH:mm:ss"); //$NON-NLS-1$
+            break;
+        case java.sql.Types.TIMESTAMP:
+            base = AvroUtils._date();
+            base.addProp(SchemaConstants.TALEND_COLUMN_PATTERN, "yyyy-MM-dd HH:mm:ss.SSS"); //$NON-NLS-1$
+            break;
+        case java.sql.Types.BOOLEAN:
+            base = AvroUtils._boolean();
+            break;
+        case java.sql.Types.CHAR:
+            base = AvroUtils._character();
+            break;
+        default:
+            base = AvroUtils._string();
+            break;
+        }
+        return base;
     }
 
     public static JDBCAvroRegistry get() {
@@ -55,61 +161,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
             int scale = metadata.getInt("DECIMAL_DIGITS");
 
             int dbtype = metadata.getInt("DATA_TYPE");
-            switch (dbtype) {
-            case java.sql.Types.VARCHAR:
-                base = Schema.create(Schema.Type.STRING);
-                base.addProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH, size);
-                break;
-            case java.sql.Types.INTEGER:
-                base = Schema.create(Schema.Type.INT);
-                base.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
-                break;
-            case java.sql.Types.DECIMAL:
-                base = Schema.create(Schema.Type.STRING);
-                base.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
-                base.addProp(SchemaConstants.TALEND_COLUMN_SCALE, scale);
-                break;
-            case java.sql.Types.BIGINT:
-                base = Schema.create(Schema.Type.STRING);
-                base.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
-                break;
-            case java.sql.Types.NUMERIC:
-                base = Schema.create(Schema.Type.STRING);
-                base.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
-                base.addProp(SchemaConstants.TALEND_COLUMN_SCALE, scale);
-                break;
-            case java.sql.Types.TINYINT:
-                base = Schema.create(Schema.Type.STRING);
-                base.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
-                break;
-            case java.sql.Types.DOUBLE:
-                base = Schema.create(Schema.Type.DOUBLE);
-                break;
-            case java.sql.Types.FLOAT:
-                base = Schema.create(Schema.Type.FLOAT);
-                break;
-            case java.sql.Types.DATE:
-                base = Schema.create(Schema.Type.LONG);
-                base.addProp(SchemaConstants.TALEND_COLUMN_PATTERN, "yyyy-MM-dd"); //$NON-NLS-1$
-                break;
-            case java.sql.Types.TIME:
-                base = Schema.create(Schema.Type.LONG);
-                base.addProp(SchemaConstants.TALEND_COLUMN_PATTERN, "HH:mm:ss"); //$NON-NLS-1$
-                break;
-            case java.sql.Types.TIMESTAMP:
-                base = Schema.create(Schema.Type.LONG);
-                base.addProp(SchemaConstants.TALEND_COLUMN_PATTERN, "yyyy-MM-dd HH:mm:ss.SSS"); //$NON-NLS-1$
-                break;
-            case java.sql.Types.BOOLEAN:
-                base = Schema.create(Schema.Type.BOOLEAN);
-                break;
-            case java.sql.Types.CHAR:
-                base = Schema.create(Schema.Type.STRING);
-                break;
-            default:
-                base = Schema.create(Schema.Type.STRING);
-                break;
-            }
+            base = sqlType2Avro(size, scale, dbtype);
 
             base.addProp(SchemaConstants.TALEND_COLUMN_DB_TYPE, dbtype);
 
@@ -123,7 +175,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
             Schema fieldSchema = nullable ? SchemaBuilder.builder().nullable().type(base) : base;
 
             String columnName = metadata.getString("COLUMN_NAME");
-            base.addProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME, columnName);
+            fieldSchema.addProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME, columnName);
             if (null == defaultValue) {
                 builder = builder.name(columnName).type(fieldSchema).noDefault();
             } else {
@@ -134,14 +186,14 @@ public class JDBCAvroRegistry extends AvroRegistry {
         return builder.endRecord();
     }
 
-    public JDBCConverter getConverter(Field f) {
+    public JDBCConverter getConverter(final Field f) {
         if (AvroUtils.isSameType(f.schema(), AvroUtils._string())) {
             return new JDBCConverter() {
 
                 @Override
                 public Object convertToAvro(ResultSet value) {
                     try {
-                        return value.getString(f.pos());
+                        return value.getString(f.pos() + 1);
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
@@ -155,7 +207,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 @Override
                 public Object convertToAvro(ResultSet value) {
                     try {
-                        return value.getInt(f.pos());
+                        return value.getInt(f.pos() + 1);
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
@@ -169,7 +221,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 @Override
                 public Object convertToAvro(ResultSet value) {
                     try {
-                        return value.getDate(f.pos());
+                        return value.getDate(f.pos() + 1);
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
@@ -183,7 +235,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 @Override
                 public Object convertToAvro(ResultSet value) {
                     try {
-                        return value.getBigDecimal(f.pos());
+                        return value.getBigDecimal(f.pos() + 1);
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
@@ -197,7 +249,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 @Override
                 public Object convertToAvro(ResultSet value) {
                     try {
-                        return value.getLong(f.pos());
+                        return value.getLong(f.pos() + 1);
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
@@ -211,7 +263,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 @Override
                 public Object convertToAvro(ResultSet value) {
                     try {
-                        return value.getDouble(f.pos());
+                        return value.getDouble(f.pos() + 1);
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
@@ -225,7 +277,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 @Override
                 public Object convertToAvro(ResultSet value) {
                     try {
-                        return value.getFloat(f.pos());
+                        return value.getFloat(f.pos() + 1);
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
@@ -239,7 +291,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 @Override
                 public Object convertToAvro(ResultSet value) {
                     try {
-                        return value.getBoolean(f.pos());
+                        return value.getBoolean(f.pos() + 1);
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
@@ -253,7 +305,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 @Override
                 public Object convertToAvro(ResultSet value) {
                     try {
-                        return value.getShort(f.pos());
+                        return value.getShort(f.pos() + 1);
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
@@ -267,7 +319,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 @Override
                 public Object convertToAvro(ResultSet value) {
                     try {
-                        return (char) value.getInt(f.pos());
+                        return (char) value.getInt(f.pos() + 1);
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
@@ -281,7 +333,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 @Override
                 public Object convertToAvro(ResultSet value) {
                     try {
-                        return value.getByte(f.pos());
+                        return value.getByte(f.pos() + 1);
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
@@ -295,7 +347,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 @Override
                 public Object convertToAvro(ResultSet value) {
                     try {
-                        return value.getString(f.pos());
+                        return value.getString(f.pos() + 1);
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }

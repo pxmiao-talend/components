@@ -14,6 +14,8 @@ package org.talend.components.jdbc.tjdbcinput;
 
 import static org.talend.daikon.properties.presentation.Widget.widget;
 
+import org.talend.components.api.component.Connector;
+import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.api.properties.ComponentReferenceProperties;
 import org.talend.components.api.properties.ComponentReferencePropertiesEnclosing;
@@ -39,6 +41,8 @@ public class TJDBCInputProperties extends ComponentPropertiesImpl
     public ComponentReferenceProperties referencedComponent = new ComponentReferenceProperties("referencedComponent", this);
 
     public JDBCConnectionModule connection = new JDBCConnectionModule("connection");
+
+    public final PropertyPathConnector mainConnector = new PropertyPathConnector(Connector.MAIN_NAME, "schema");
 
     public SchemaProperties schema = new SchemaProperties("schema");
 

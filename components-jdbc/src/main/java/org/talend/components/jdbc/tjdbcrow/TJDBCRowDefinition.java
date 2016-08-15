@@ -18,7 +18,6 @@ import org.talend.components.api.component.ComponentDefinition;
 import org.talend.components.api.component.OutputComponentDefinition;
 import org.talend.components.api.component.runtime.Sink;
 import org.talend.components.api.properties.ComponentProperties;
-import org.talend.components.jdbc.tjdbcconnection.TJDBCConnectionProperties;
 import org.talend.daikon.properties.property.Property;
 
 import aQute.bnd.annotation.component.Component;
@@ -35,13 +34,6 @@ public class TJDBCRowDefinition extends AbstractComponentDefinition implements O
     @Override
     public Class<? extends ComponentProperties> getPropertyClass() {
         return TJDBCRowProperties.class;
-    }
-
-    // TODO it is useful now?
-    @SuppressWarnings("unchecked")
-    @Override
-    public Class<? extends ComponentProperties>[] getNestedCompatibleComponentPropertiesClass() {
-        return new Class[] { TJDBCConnectionProperties.class, TJDBCRowProperties.class };
     }
 
     @Override

@@ -38,13 +38,6 @@ public class TJDBCInputDefinition extends AbstractComponentDefinition implements
         return TJDBCInputProperties.class;
     }
 
-    // TODO it is useful now?
-    @SuppressWarnings("unchecked")
-    @Override
-    public Class<? extends ComponentProperties>[] getNestedCompatibleComponentPropertiesClass() {
-        return new Class[] { TJDBCInputProperties.class };
-    }
-
     @Override
     public Source getRuntime() {
         return new JDBCSource();

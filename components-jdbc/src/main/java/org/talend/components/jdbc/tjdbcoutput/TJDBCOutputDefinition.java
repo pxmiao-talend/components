@@ -19,7 +19,6 @@ import org.talend.components.api.component.OutputComponentDefinition;
 import org.talend.components.api.component.runtime.Sink;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.jdbc.runtime.JDBCSink;
-import org.talend.components.jdbc.tjdbcconnection.TJDBCConnectionProperties;
 import org.talend.daikon.properties.property.Property;
 
 import aQute.bnd.annotation.component.Component;
@@ -36,13 +35,6 @@ public class TJDBCOutputDefinition extends AbstractComponentDefinition implement
     @Override
     public Class<? extends ComponentProperties> getPropertyClass() {
         return TJDBCOutputProperties.class;
-    }
-
-    // TODO it is useful now?
-    @SuppressWarnings("unchecked")
-    @Override
-    public Class<? extends ComponentProperties>[] getNestedCompatibleComponentPropertiesClass() {
-        return new Class[] { TJDBCConnectionProperties.class, TJDBCOutputProperties.class };
     }
 
     @Override

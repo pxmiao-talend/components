@@ -37,13 +37,6 @@ public class TJDBCCloseDefinition extends AbstractComponentDefinition implements
         return TJDBCCloseProperties.class;
     }
 
-    // TODO it is useful now?
-    @SuppressWarnings("unchecked")
-    @Override
-    public Class<? extends ComponentProperties>[] getNestedCompatibleComponentPropertiesClass() {
-        return new Class[] { TJDBCCloseDefinition.class };
-    }
-
     @Override
     public String[] getFamilies() {
         return new String[] { "Databases/DB_JDBC" };

@@ -49,6 +49,8 @@ public class DropboxRuntimeTestBase {
 
     protected Schema putFileStringSchema;
 
+    protected Schema putFileByteSchema;
+
     protected TDropboxConnectionProperties connectionProperties;
 
     protected DropboxProperties commonProperties;
@@ -84,6 +86,16 @@ public class DropboxRuntimeTestBase {
         Schema.Field contentField = new Schema.Field("content", stringSchema, null, null, Order.ASCENDING);
         putFileStringSchema = Schema.createRecord("dropbox", null, null, false, Collections.singletonList(contentField));
         putFileStringSchema.addProp(TALEND_IS_LOCKED, "true");
+    }
+
+    protected void setupPutFileByteSchema() {
+        // get Schema for byte[] class
+        AvroRegistry registry = new AvroRegistry();
+        Schema bytesSchema = registry.getConverter(ByteBuffer.class).getSchema();
+
+        Schema.Field contentField = new Schema.Field("content", bytesSchema, null, null, Order.ASCENDING);
+        putFileByteSchema = Schema.createRecord("dropbox", null, null, false, Collections.singletonList(contentField));
+        putFileByteSchema.addProp(TALEND_IS_LOCKED, "true");
     }
 
     /**

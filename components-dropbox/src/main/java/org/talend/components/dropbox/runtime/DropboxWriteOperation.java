@@ -19,6 +19,7 @@ import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.component.runtime.Sink;
 import org.talend.components.api.component.runtime.WriteOperation;
 import org.talend.components.api.container.RuntimeContainer;
+import org.talend.components.dropbox.runtime.writer.DropboxPutBytesWriter;
 import org.talend.components.dropbox.runtime.writer.DropboxPutFileWriter;
 import org.talend.components.dropbox.runtime.writer.DropboxPutStringWriter;
 import org.talend.components.dropbox.runtime.writer.DropboxPutWriter;
@@ -78,7 +79,7 @@ public class DropboxWriteOperation implements WriteOperation<Result> {
         case LOCAL_FILE:
             return new DropboxPutFileWriter(this);
         case BYTE_ARRAY:
-            return null;
+            return new DropboxPutBytesWriter(this);
         default:
             throw new NullPointerException("Content type wasn't specified");
         }

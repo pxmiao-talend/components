@@ -12,8 +12,14 @@
 // ============================================================================
 package org.talend.components.dropbox.runtime.writer;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
+import org.apache.avro.Schema;
+import org.apache.avro.generic.IndexedRecord;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -33,6 +39,7 @@ public class DropboxPutWriterTestIT extends DropboxRuntimeTestBase {
     @Before
     public void setUp() {
         setupPutFileStringSchema();
+        setupPutFileByteSchema();
         setupConnectionProperties();
         setupPutProperties();
         putProperties.uploadFrom.setValue(ContentType.LOCAL_FILE);
@@ -66,7 +73,7 @@ public class DropboxPutWriterTestIT extends DropboxRuntimeTestBase {
         DropboxIndexedRecord record = new DropboxIndexedRecord(putFileStringSchema);
         String content = "This is string content of file";
         record.put(0, content);
-        changeContentTypeTo(ContentType.STRING);
+        changeContentTypeTo(ContentType.STRING, putFileStringSchema);
 
         DropboxPutWriter writer = writeOperation.createWriter(container);
         writer.open("putUid");
@@ -74,12 +81,45 @@ public class DropboxPutWriterTestIT extends DropboxRuntimeTestBase {
         Result result = writer.close();
     }
 
+    @Ignore
+    @Test
+    public void testUploadFromByteArray() throws IOException {
+        changeContentTypeTo(ContentType.BYTE_ARRAY, putFileByteSchema);
+        List<IndexedRecord> records = prepareByteArrayRecords();
+
+        DropboxPutWriter writer = writeOperation.createWriter(container);
+        writer.open("putUid");
+        for (IndexedRecord record : records) {
+            writer.write(record);
+        }
+        Result result = writer.close();
+    }
+
     /**
      * Changes contentType for different test-case
      */
-    private void changeContentTypeTo(ContentType contentType) {
+    private void changeContentTypeTo(ContentType contentType, Schema schema) {
         putProperties.uploadFrom.setValue(contentType);
+        putProperties.schema.schema.setValue(schema);
         setupPutSink();
         setupWriteOperation();
+    }
+
+    /**
+     * Prepares a list of {@link IndexedRecord} for testUploadFromByteArray case
+     */
+    private List<IndexedRecord> prepareByteArrayRecords() throws IOException {
+        File bigFile = new File("D:/test/angular.js");
+        FileInputStream fis = new FileInputStream(bigFile);
+        LinkedList<IndexedRecord> records = new LinkedList<>();
+        // just to test with 10 records, no need to read whole file
+        for (int i = 0; i < 10; i++) {
+            byte[] buffer = new byte[1024];
+            fis.read(buffer);
+            DropboxIndexedRecord record = new DropboxIndexedRecord(putFileByteSchema);
+            record.put(0, buffer);
+            records.add(record);
+        }
+        return records;
     }
 }

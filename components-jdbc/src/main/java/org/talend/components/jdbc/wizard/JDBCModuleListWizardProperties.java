@@ -23,6 +23,7 @@ import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.jdbc.JDBCConnectionInfoProperties;
 import org.talend.components.jdbc.module.JDBCConnectionModule;
 import org.talend.components.jdbc.runtime.JDBCSourceOrSink;
+import org.talend.components.jdbc.tjdbcinput.TJDBCInputProperties;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.ValidationResult;
@@ -84,17 +85,20 @@ public class JDBCModuleListWizardProperties extends ComponentPropertiesImpl impl
         String connRepLocation = repo.storeProperties(connection, null, repositoryLocation, null);
 
         for (NamedThing nl : selectedModuleNames.getValue()) {
-            String moduleId = nl.getName();
-            Schema schema = sourceOrSink.getEndpointSchema(null, moduleId);
-            /*
-            SalesforceModuleProperties modProps = new SalesforceModuleProperties(moduleId);
-            modProps.connection = connection;
-            modProps.init();
-            
-            modProps.moduleName.setValue(moduleId);
-            modProps.main.schema.setValue(schema);
-            repo.storeProperties(modProps, nl.getName(), connRepLocation, "schema.schema");
-            */
+            String tablename = nl.getName();
+            Schema schema = sourceOrSink.getEndpointSchema(null, tablename);
+
+            // only use one properties contains all information(connection info, table name, schema), not have to be
+            // TJDBCInputProperties
+            // it seems that we map the wizard meta data to component properties by the field path
+            // TODO make sure it works
+            TJDBCInputProperties properties = new TJDBCInputProperties(tablename);
+            properties.connection = connection;
+            properties.init();
+
+            properties.tablename.setValue(tablename);
+            properties.schema.schema.setValue(schema);
+            repo.storeProperties(properties, tablename, connRepLocation, "schema.schema");
         }
         return ValidationResult.OK;
     }

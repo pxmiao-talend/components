@@ -64,7 +64,9 @@ public class JDBCSourceOrSink implements SourceOrSink {
             fillValidationResult(vr, ex);
         } finally {
             try {
-                conn.close();
+                if (conn != null) {
+                    conn.close();
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }

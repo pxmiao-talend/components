@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
@@ -29,10 +30,9 @@ import org.apache.avro.generic.IndexedRecord;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.talend.components.api.component.ComponentDefinition;
-import org.talend.components.api.component.runtime.BoundedReader;
-import org.talend.components.api.component.runtime.BoundedSource;
 import org.talend.components.api.component.runtime.Reader;
+import org.talend.components.jdbc.module.JDBCConnectionModule;
+import org.talend.components.jdbc.runtime.JDBCSource;
 import org.talend.components.jdbc.runtime.JDBCTemplate;
 import org.talend.components.jdbc.tjdbcinput.TJDBCInputDefinition;
 import org.talend.components.jdbc.tjdbcinput.TJDBCInputProperties;
@@ -41,25 +41,72 @@ import org.talend.daikon.avro.AvroRegistry;
 import org.talend.daikon.avro.SchemaConstants;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
 import org.talend.daikon.di.DiOutgoingSchemaEnforcer;
-import org.talend.daikon.properties.ValidationResult;
 
-public class JDBCTestCase {
+public class JDBCInputTestIT {
 
-    private static TJDBCInputProperties db_input_properties;
+    private static String driverClass;
 
-    private static BoundedSource source;
+    private static String jdbcUrl;
+
+    private static String userId;
+
+    private static String password;
+
+    private static String tablename;
+
+    private static String sql;
+
+    private static JDBCConnectionModule connectionInfo;
 
     @BeforeClass
     public static void init() throws Exception {
         java.util.Properties props = new java.util.Properties();
-        try (InputStream is = JDBCTestCase.class.getClassLoader().getResourceAsStream("connection.properties")) {
+        try (InputStream is = JDBCInputTestIT.class.getClassLoader().getResourceAsStream("connection.properties")) {
             props = new java.util.Properties();
             props.load(is);
         }
 
-        initSource(props);
+        driverClass = props.getProperty("driverClass");
 
-        Connection conn = JDBCTemplate.createConnection(db_input_properties.getJDBCConnectionModule());
+        jdbcUrl = props.getProperty("jdbcUrl");
+
+        userId = props.getProperty("userId");
+
+        password = props.getProperty("password");
+
+        tablename = props.getProperty("tablename");
+
+        sql = props.getProperty("sql");
+
+        connectionInfo = new JDBCConnectionModule("connection");
+
+        connectionInfo.driverClass.setValue(driverClass);
+        connectionInfo.jdbcUrl.setValue(jdbcUrl);
+        connectionInfo.userPassword.userId.setValue(userId);
+        connectionInfo.userPassword.password.setValue(password);
+
+        prepareTableAndData();
+    }
+
+    @AfterClass
+    public static void clean() throws ClassNotFoundException, SQLException {
+        cleanTable();
+    }
+
+    private static void cleanTable() throws ClassNotFoundException, SQLException {
+        Connection conn = JDBCTemplate.createConnection(connectionInfo);
+
+        try {
+            dropTestTable(conn);
+        } catch (Exception e) {
+            // do nothing
+        }
+
+        conn.close();
+    }
+
+    private static void prepareTableAndData() throws ClassNotFoundException, SQLException, Exception {
+        Connection conn = JDBCTemplate.createConnection(connectionInfo);
 
         try {
             dropTestTable(conn);
@@ -72,42 +119,10 @@ public class JDBCTestCase {
         conn.close();
     }
 
-    private static void initSource(java.util.Properties props) {
-        ComponentDefinition definition = new TJDBCInputDefinition();
-        TJDBCInputProperties properties = (TJDBCInputProperties) definition.createRuntimeProperties();
-
-        properties.connection.setValue("host", props.getProperty("host"));
-        properties.connection.setValue("port", props.getProperty("port"));
-        properties.connection.setValue("database", props.getProperty("database"));
-        properties.connection.setValue("dbschema", props.getProperty("dbschema"));
-        properties.connection.userPassword.setValue("userId", props.getProperty("userId"));
-        properties.connection.userPassword.setValue("password", props.getProperty("password"));
-
-        properties.schema.schema.setValue(createTestSchema());
-
-        properties.setValue("tablename", props.getProperty("tablename"));
-        properties.setValue("sql", props.getProperty("sql"));
-
-        JDBCTestCase.db_input_properties = properties;
-
-        source = (BoundedSource) ((org.talend.components.api.component.InputComponentDefinition) definition).getRuntime();
-        source.initialize(null, properties);
-    }
-
-    @AfterClass
-    public static void destory() throws Exception {
-        db_input_properties = null;
-        source = null;
-    }
-
-    @Test
-    public void validate() {
-        ValidationResult result = source.validate(null);
-        assertTrue(result.getStatus() == ValidationResult.Result.OK);
-    }
-
     @Test
     public void testGetSchemaNames() throws Exception {
+        JDBCSource source = createSource();
+
         List<NamedThing> schemaNames = source.getSchemaNames(null);
         assertTrue(schemaNames != null);
         assertTrue(!schemaNames.isEmpty());
@@ -125,6 +140,8 @@ public class JDBCTestCase {
 
     @Test
     public void testGetSchema() throws Exception {
+        JDBCSource source = createSource();
+
         Schema schema = source.getEndpointSchema(null, "TEST");
         assertEquals("TEST", schema.getName());
         List<Field> columns = schema.getFields();
@@ -135,7 +152,7 @@ public class JDBCTestCase {
         Schema columnSchema = columns.get(0).schema().getTypes().get(0);
 
         assertEquals("ID", columnSchema.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME));
-        assertEquals(Schema.Type.STRING, columnSchema.getType());
+        assertEquals(Schema.Type.INT, columnSchema.getType());
         assertEquals(java.sql.Types.DECIMAL, columnSchema.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
         assertEquals(null, columnSchema.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH));
         assertEquals(38, columnSchema.getObjectProp(SchemaConstants.TALEND_COLUMN_PRECISION));
@@ -157,7 +174,9 @@ public class JDBCTestCase {
 
     @Test
     public void testReader() throws Exception {
-        BoundedReader reader = source.createReader(null);
+        JDBCSource source = createSource();
+
+        Reader reader = source.createReader(null);
 
         reader.start();
 
@@ -189,6 +208,8 @@ public class JDBCTestCase {
 
     @Test
     public void testType() throws Exception {
+        JDBCSource source = createSource();
+
         Reader reader = source.createReader(null);
 
         IndexedRecordConverter<Object, ? extends IndexedRecord> factory = null;
@@ -206,6 +227,28 @@ public class JDBCTestCase {
             assertEquals(BigDecimal.class, current.get(0).getClass());
             assertEquals(String.class, current.get(1).getClass());
         }
+    }
+
+    private JDBCSource createSource() {
+        TJDBCInputDefinition definition = new TJDBCInputDefinition();
+        TJDBCInputProperties properties = (TJDBCInputProperties) definition.createRuntimeProperties();
+
+        // TODO now framework doesn't support to load the JDBC jar by the setting
+        // properties.connection.driverJar.setValue("port", props.getProperty("port"));
+        properties.connection.driverClass.setValue(driverClass);
+        properties.connection.jdbcUrl.setValue(jdbcUrl);
+        properties.connection.userPassword.userId.setValue(userId);
+        properties.connection.userPassword.password.setValue(password);
+
+        properties.schema.schema.setValue(createTestSchema());
+
+        properties.tablename.setValue(tablename);
+        properties.sql.setValue(sql);
+
+        JDBCSource source = (JDBCSource) definition.getRuntime();
+        source.initialize(null, properties);
+
+        return source;
     }
 
     private static Schema createTestSchema() {

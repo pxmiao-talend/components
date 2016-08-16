@@ -102,7 +102,7 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties
 
     public Property<Integer> batchSize = PropertyFactory.newInteger("batchSize").setRequired();
 
-    private void updateOutputSchemas() {
+    public void updateOutputSchemas() {
         Schema inputSchema = main.schema.getValue();
 
         schemaFlow.schema.setValue(inputSchema);

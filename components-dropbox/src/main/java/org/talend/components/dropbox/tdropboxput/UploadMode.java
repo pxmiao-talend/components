@@ -20,20 +20,7 @@ import com.dropbox.core.v2.files.WriteMode;
  * Provides conversion method from {@link UploadMode} to {@link WriteMode}
  */
 public enum UploadMode {
-    RENAME {
-
-        @Override
-        public WriteMode toWriteMode() {
-            return WriteMode.ADD;
-        }
-    },
-    REPLACE {
-
-        @Override
-        public WriteMode toWriteMode() {
-            return WriteMode.OVERWRITE;
-        }
-    };
-
-    public abstract WriteMode toWriteMode();
+    RENAME,
+    REPLACE,
+    UPDATE_REVISION;
 }

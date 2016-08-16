@@ -72,6 +72,12 @@ public class TDropboxPutProperties extends DropboxProperties {
     public Property<UploadMode> uploadMode = PropertyFactory.newEnum("uploadMode", UploadMode.class);
 
     /**
+     * This property is used, when Update revision upload mode is chosen.
+     * It defines file revision(version) value, which should be updated
+     */
+    public Property<String> revision = PropertyFactory.newString("revision");
+
+    /**
      * Defines incoming content type. Possible values are: STRING, LOCAL_FILE, BYTE_ARRAY
      */
     public Property<ContentType> uploadFrom = PropertyFactory.newEnum("uploadFrom", ContentType.class);
@@ -107,6 +113,7 @@ public class TDropboxPutProperties extends DropboxProperties {
     public void setupProperties() {
         super.setupProperties();
         uploadMode.setValue(UploadMode.RENAME);
+        revision.setValue("");
         uploadFrom.setValue(ContentType.STRING);
         localFile.setValue("");
         schema.schema.setValue(STRING_SCHEMA);
@@ -120,6 +127,7 @@ public class TDropboxPutProperties extends DropboxProperties {
         super.setupLayout();
         Form mainForm = getForm(Form.MAIN);
         mainForm.addRow(uploadMode);
+        mainForm.addColumn(revision);
         mainForm.addRow(uploadFrom);
         mainForm.addRow(widget(localFile).setWidgetType(Widget.FILE_WIDGET_TYPE));
         mainForm.addRow(schema.getForm(Form.REFERENCE));
@@ -154,6 +162,13 @@ public class TDropboxPutProperties extends DropboxProperties {
                 break;
             }
             }
+
+            UploadMode uploadModeValue = uploadMode.getValue();
+            if (uploadModeValue == UploadMode.UPDATE_REVISION) {
+                form.getWidget(revision.getName()).setHidden(false);
+            } else {
+                form.getWidget(revision.getName()).setHidden(true);
+            }
         }
     }
 
@@ -179,4 +194,10 @@ public class TDropboxPutProperties extends DropboxProperties {
         refreshLayout(getForm(Form.MAIN));
     }
 
+    /**
+     * Refreshes Main form after Upload Mode widget was changed
+     */
+    public void afterUploadMode() {
+        refreshLayout(getForm(Form.MAIN));
+    }
 }

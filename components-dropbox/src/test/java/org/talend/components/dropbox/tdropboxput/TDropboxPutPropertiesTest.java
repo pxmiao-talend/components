@@ -89,7 +89,7 @@ public class TDropboxPutPropertiesTest {
      * when LOCAL_FILE Upload From is chosen
      */
     @Test
-    public void testAfterUploadFile() {
+    public void testAfterUploadFromFile() {
         TDropboxPutProperties properties = new TDropboxPutProperties("root");
         properties.init();
         properties.uploadFrom.setValue(ContentType.LOCAL_FILE);
@@ -109,7 +109,7 @@ public class TDropboxPutPropertiesTest {
      * when BYTE_ARRAY Upload From is chosen
      */
     @Test
-    public void testAfterUploadBytes() {
+    public void testAfterUploadFromBytes() {
         TDropboxPutProperties properties = new TDropboxPutProperties("root");
         properties.init();
         properties.uploadFrom.setValue(ContentType.BYTE_ARRAY);
@@ -125,6 +125,51 @@ public class TDropboxPutPropertiesTest {
     }
 
     /**
+     * Checks {@link TDropboxPutProperties#afterUploadMode()} doesn't show Revision widget, when RENAME Update Mode is chosen
+     */
+    @Test
+    public void testAfterUploadModeRename() {
+        TDropboxPutProperties properties = new TDropboxPutProperties("root");
+        properties.init();
+        properties.uploadMode.setValue(UploadMode.RENAME);
+
+        properties.afterUploadMode();
+
+        boolean revisionIsHidden = properties.getForm(Form.MAIN).getWidget("revision").isHidden();
+        assertTrue(revisionIsHidden);
+    }
+
+    /**
+     * Checks {@link TDropboxPutProperties#afterUploadMode()} doesn't show Revision widget, when REPLACE Update Mode is chosen
+     */
+    @Test
+    public void testAfterUploadModeReplace() {
+        TDropboxPutProperties properties = new TDropboxPutProperties("root");
+        properties.init();
+        properties.uploadMode.setValue(UploadMode.REPLACE);
+
+        properties.afterUploadMode();
+
+        boolean revisionIsHidden = properties.getForm(Form.MAIN).getWidget("revision").isHidden();
+        assertTrue(revisionIsHidden);
+    }
+
+    /**
+     * Checks {@link TDropboxPutProperties#afterUploadMode()} shows Revision widget, when UPDATE_REVISION Update Mode is chosen
+     */
+    @Test
+    public void testAfterUploadModeUpdateRevision() {
+        TDropboxPutProperties properties = new TDropboxPutProperties("root");
+        properties.init();
+        properties.uploadMode.setValue(UploadMode.UPDATE_REVISION);
+
+        properties.afterUploadMode();
+
+        boolean revisionIsHidden = properties.getForm(Form.MAIN).getWidget("revision").isHidden();
+        assertFalse(revisionIsHidden);
+    }
+
+    /**
      * Checks {@link TDropboxPutProperties#setupProperties()} sets correct initial property values
      */
     @Test
@@ -134,12 +179,14 @@ public class TDropboxPutPropertiesTest {
 
         String pathValue = properties.path.getValue();
         UploadMode uploadModeValue = properties.uploadMode.getValue();
+        String revisionValue = properties.revision.getValue();
         ContentType uploadFromValue = properties.uploadFrom.getValue();
         String localFileValue = properties.localFile.getValue();
         Schema schemaValue = properties.schema.schema.getValue();
 
         assertThat(pathValue, equalTo(""));
         assertThat(uploadModeValue, equalTo(UploadMode.RENAME));
+        assertThat(revisionValue, equalTo(""));
         assertThat(uploadFromValue, equalTo(ContentType.STRING));
         assertThat(localFileValue, equalTo(""));
         assertThat(schemaValue, equalTo(STRING_SCHEMA));
@@ -159,12 +206,14 @@ public class TDropboxPutPropertiesTest {
         boolean connectionIsHidden = properties.getForm(Form.MAIN).getWidget("connection").isHidden();
         boolean pathIsHidden = properties.getForm(Form.MAIN).getWidget("path").isHidden();
         boolean uploadModeIsHidden = properties.getForm(Form.MAIN).getWidget("uploadMode").isHidden();
+        boolean revisionIsHidden = properties.getForm(Form.MAIN).getWidget("revision").isHidden();
         boolean uploadFromIsHidden = properties.getForm(Form.MAIN).getWidget("uploadFrom").isHidden();
         boolean localFileIsHidden = properties.getForm(Form.MAIN).getWidget("localFile").isHidden();
         boolean schemaIsHidden = properties.getForm(Form.MAIN).getWidget("schema").isHidden();
         assertFalse(connectionIsHidden);
         assertFalse(pathIsHidden);
         assertFalse(uploadModeIsHidden);
+        assertTrue(revisionIsHidden);
         assertFalse(uploadFromIsHidden);
         assertTrue(localFileIsHidden);
         assertFalse(schemaIsHidden);
@@ -184,6 +233,7 @@ public class TDropboxPutPropertiesTest {
         boolean connectionExpected = properties.getForm(Form.MAIN).getWidget("connection").isHidden();
         boolean pathExpected = properties.getForm(Form.MAIN).getWidget("path").isHidden();
         boolean uploadModeExpected = properties.getForm(Form.MAIN).getWidget("uploadMode").isHidden();
+        boolean revisionExpected = properties.getForm(Form.MAIN).getWidget("revision").isHidden();
         boolean uploadFromExpected = properties.getForm(Form.MAIN).getWidget("uploadFrom").isHidden();
         boolean localFileExpected = properties.getForm(Form.MAIN).getWidget("localFile").isHidden();
         boolean schemaExpected = properties.getForm(Form.MAIN).getWidget("schema").isHidden();
@@ -193,6 +243,7 @@ public class TDropboxPutPropertiesTest {
         boolean connectionActual = properties.getForm(Form.MAIN).getWidget("connection").isHidden();
         boolean pathActual = properties.getForm(Form.MAIN).getWidget("path").isHidden();
         boolean uploadModeActual = properties.getForm(Form.MAIN).getWidget("uploadMode").isHidden();
+        boolean revisionActual = properties.getForm(Form.MAIN).getWidget("revision").isHidden();
         boolean uploadFromActual = properties.getForm(Form.MAIN).getWidget("uploadFrom").isHidden();
         boolean localFileActual = properties.getForm(Form.MAIN).getWidget("localFile").isHidden();
         boolean schemaActual = properties.getForm(Form.MAIN).getWidget("schema").isHidden();
@@ -200,6 +251,7 @@ public class TDropboxPutPropertiesTest {
         assertEquals(connectionExpected, connectionActual);
         assertEquals(pathExpected, pathActual);
         assertEquals(uploadModeExpected, uploadModeActual);
+        assertEquals(revisionExpected, revisionActual);
         assertEquals(uploadFromExpected, uploadFromActual);
         assertEquals(localFileExpected, localFileActual);
         assertEquals(schemaExpected, schemaActual);
@@ -207,7 +259,7 @@ public class TDropboxPutPropertiesTest {
 
     /**
      * Checks {@link TDropboxPutProperties#setupLayout()} creates Main form,
-     * which contains 6 widgets: Connection, Path, Upload Mode, Upload From, Local File and Schema
+     * which contains 7 widgets: Connection, Path, Upload Mode, Revision, Upload From, Local File and Schema
      */
     @Test
     public void testSetupLayout() {
@@ -222,7 +274,7 @@ public class TDropboxPutPropertiesTest {
         assertThat(advanced, nullValue());
 
         Collection<Widget> mainWidgets = main.getWidgets();
-        assertThat(mainWidgets, hasSize(6));
+        assertThat(mainWidgets, hasSize(7));
 
         Widget connectionWidget = main.getWidget("connection");
         assertThat(connectionWidget, notNullValue());
@@ -230,6 +282,8 @@ public class TDropboxPutPropertiesTest {
         assertThat(pathWidget, notNullValue());
         Widget uploadModeWidget = main.getWidget("uploadMode");
         assertThat(uploadModeWidget, notNullValue());
+        Widget revisionWidget = main.getWidget("revision");
+        assertThat(revisionWidget, notNullValue());
         Widget uploadFromWidget = main.getWidget("uploadFrom");
         assertThat(uploadFromWidget, notNullValue());
         Widget localFileWidget = main.getWidget("localFile");

@@ -22,6 +22,7 @@ import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.component.runtime.WriteOperation;
 import org.talend.components.api.component.runtime.Writer;
 import org.talend.components.dropbox.runtime.DropboxWriteOperation;
+import org.talend.components.dropbox.tdropboxput.UploadMode;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
 
 import com.dropbox.core.v2.files.DbxUserFilesRequests;
@@ -83,7 +84,7 @@ public abstract class DropboxPutWriter implements Writer<Result> {
     public DropboxPutWriter(DropboxWriteOperation writeOperation) {
         this.writeOperation = writeOperation;
         path = writeOperation.getSink().getPath();
-        dbxWriteMode = writeOperation.getSink().getUploadMode().toWriteMode();
+        dbxWriteMode = convertToWriteMode(writeOperation.getSink().getUploadMode(), "revisionValue");
         filesClient = writeOperation.getSink().getClient().files();
     }
 
@@ -123,6 +124,28 @@ public abstract class DropboxPutWriter implements Writer<Result> {
     @Override
     public DropboxWriteOperation getWriteOperation() {
         return writeOperation;
+    }
+
+    /**
+     * Converts from component specific {@link UploadMode} to Dropbox API specific {@link WriteMode}
+     * 
+     * @param uploadMode {@link UploadMode} to convert
+     * @param revision optional parameter; defines revision value for {@link UploadMode#UPDATE_REVISION}
+     */
+    public static WriteMode convertToWriteMode(UploadMode uploadMode, String revision) {
+        switch (uploadMode) {
+        case RENAME: {
+            return WriteMode.ADD;
+        }
+        case REPLACE: {
+            return WriteMode.OVERWRITE;
+        }
+        case UPDATE_REVISION: {
+            return WriteMode.update(revision);
+        }
+        default:
+            return null;
+        }
     }
 
 }

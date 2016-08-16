@@ -29,7 +29,7 @@ public class JDBCConnectionWizard extends ComponentWizard {
         connectionProperties.init();
         addForm(connectionProperties.getForm(Form.MAIN));
 
-        moduleProperties = new JDBCModuleListWizardProperties("moduleList")
+        moduleProperties = new JDBCModuleListWizardProperties("moduleList").setName(connectionProperties.name.getValue())
                 .setConnection(connectionProperties.getJDBCConnectionModule()).setRepositoryLocation(getRepositoryLocation());
         moduleProperties.init();
         addForm(moduleProperties.getForm(Form.MAIN));

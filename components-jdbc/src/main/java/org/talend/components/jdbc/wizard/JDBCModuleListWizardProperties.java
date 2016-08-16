@@ -34,6 +34,8 @@ import org.talend.daikon.properties.service.Repository;
 
 public class JDBCModuleListWizardProperties extends ComponentPropertiesImpl implements JDBCConnectionInfoProperties {
 
+    private String name;
+
     private JDBCConnectionModule connection;
 
     private String repositoryLocation;
@@ -49,6 +51,11 @@ public class JDBCModuleListWizardProperties extends ComponentPropertiesImpl impl
 
     public JDBCModuleListWizardProperties setConnection(JDBCConnectionModule connection) {
         this.connection = connection;
+        return this;
+    }
+
+    public JDBCModuleListWizardProperties setName(String name) {
+        this.name = name;
         return this;
     }
 
@@ -81,8 +88,7 @@ public class JDBCModuleListWizardProperties extends ComponentPropertiesImpl impl
             return vr;
         }
 
-        // TODO adjust the second parameter
-        String connRepLocation = repo.storeProperties(connection, null, repositoryLocation, null);
+        String connRepLocation = repo.storeProperties(connection, name, repositoryLocation, null);
 
         for (NamedThing nl : selectedModuleNames.getValue()) {
             String tablename = nl.getName();

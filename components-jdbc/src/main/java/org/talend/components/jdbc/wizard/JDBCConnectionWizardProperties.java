@@ -23,8 +23,12 @@ import org.talend.daikon.properties.PresentationItem;
 import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
+import org.talend.daikon.properties.property.Property;
+import org.talend.daikon.properties.property.PropertyFactory;
 
 public class JDBCConnectionWizardProperties extends ComponentPropertiesImpl implements JDBCConnectionInfoProperties {
+
+    public Property<String> name = PropertyFactory.newString("name").setRequired();
 
     public JDBCConnectionModule connection = new JDBCConnectionModule("connection");
 
@@ -44,6 +48,7 @@ public class JDBCConnectionWizardProperties extends ComponentPropertiesImpl impl
         super.setupLayout();
 
         Form wizardForm = CommonUtils.addForm(this, Form.MAIN);
+        wizardForm.addRow(name);
         wizardForm.addRow(connection.getForm(Form.MAIN));
         wizardForm.addRow(widget(testConnection).setLongRunning(true).setWidgetType(Widget.BUTTON_WIDGET_TYPE));
     }

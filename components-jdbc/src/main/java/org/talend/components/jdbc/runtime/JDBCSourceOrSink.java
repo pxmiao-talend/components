@@ -132,11 +132,15 @@ public class JDBCSourceOrSink implements SourceOrSink {
             }
         } else {// connection component
             Connection conn = JDBCTemplate.createConnection(properties.getJDBCConnectionModule());
-            boolean autoCommit = ((TJDBCConnectionProperties) properties).autocommit.getValue();
-            conn.setAutoCommit(autoCommit);
-            if (runtime != null) {
-                runtime.setComponentData(runtime.getCurrentComponentId(), ComponentConstants.CONNECTION_KEY, conn);
+
+            if (properties instanceof TJDBCConnectionProperties) {
+                boolean autoCommit = ((TJDBCConnectionProperties) properties).autocommit.getValue();
+                conn.setAutoCommit(autoCommit);
+                if (runtime != null) {
+                    runtime.setComponentData(runtime.getCurrentComponentId(), ComponentConstants.CONNECTION_KEY, conn);
+                }
             }
+
             return conn;
         }
     }

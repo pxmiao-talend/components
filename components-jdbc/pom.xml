@@ -18,7 +18,12 @@
     <packaging>bundle</packaging>
 
     <dependencies>
-        <!-- Generated Jar files from the WSDL -->
+    	<dependency>
+            <groupId>org.talend.libraries</groupId>
+            <artifactId>mysql-connector-java-5.1.30-bin</artifactId>
+            <version>6.3.0</version>
+        </dependency>
+        
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>

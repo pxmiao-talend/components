@@ -1,0 +1,2 @@
+//install the mysql jdbc jar to your local repository firstly.
+mvn install:install-file -DgroupId=org.talend.libraries -DartifactId=mysql-connector-java-5.1.30-bin -Dversion=6.3.0 -Dfile=C:/Users/wangwei/Desktop/mysql-connector-java-5.1.30-bin.jar -Dpackaging=jar -DgeneratePom=true

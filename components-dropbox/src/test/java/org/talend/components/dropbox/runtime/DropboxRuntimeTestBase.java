@@ -146,6 +146,7 @@ public class DropboxRuntimeTestBase {
         putProperties.path.setValue(UPLOAD_FILE);
         putProperties.connection = connectionProperties;
         putProperties.uploadMode.setValue(UploadMode.RENAME);
+        putProperties.revision.setValue("123456789");
         putProperties.uploadFrom.setValue(ContentType.STRING);
         putProperties.localFile.setValue(PATH_TO_UPLOAD);
         putProperties.schema.schema.setValue(putFileStringSchema);

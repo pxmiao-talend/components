@@ -49,6 +49,8 @@ public class DropboxPutSinkTest extends DropboxRuntimeTestBase {
 
         UploadMode uploadMode = sink.getUploadMode();
         assertEquals(UploadMode.RENAME, uploadMode);
+        String revision = sink.getRevision();
+        assertEquals("123456789", revision);
         ContentType contentType = sink.getContentType();
         assertEquals(ContentType.STRING, contentType);
         String localFile = sink.getFilePath();

@@ -39,6 +39,12 @@ public class DropboxPutSink extends DropboxComponentSourceOrSink implements Sink
     private UploadMode uploadMode;
 
     /**
+     * Defines revision (version) of file, which should be updated in case of {@link UploadMode#UPDATE_REVISION} mode 
+     * is chosen
+     */
+    private String revision;
+
+    /**
      * Defines incoming content type. Possible values are: STRING, LOCAL_FILE, BYTE_ARRAY
      */
     private ContentType contentType;
@@ -66,6 +72,7 @@ public class DropboxPutSink extends DropboxComponentSourceOrSink implements Sink
         if (properties instanceof TDropboxPutProperties) {
             TDropboxPutProperties putProperties = (TDropboxPutProperties) properties;
             uploadMode = putProperties.uploadMode.getValue();
+            revision = putProperties.revision.getValue();
             contentType = putProperties.uploadFrom.getValue();
             filePath = putProperties.localFile.getValue();
             componentSchema = putProperties.schema.schema.getValue();
@@ -89,6 +96,15 @@ public class DropboxPutSink extends DropboxComponentSourceOrSink implements Sink
      */
     public UploadMode getUploadMode() {
         return uploadMode;
+    }
+
+    /**
+     * Returns revision (version) of file, which should be updated
+     * 
+     * @return file revision
+     */
+    public String getRevision() {
+        return revision;
     }
 
     /**

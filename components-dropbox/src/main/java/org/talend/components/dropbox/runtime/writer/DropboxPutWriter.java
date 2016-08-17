@@ -84,7 +84,8 @@ public abstract class DropboxPutWriter implements Writer<Result> {
     public DropboxPutWriter(DropboxWriteOperation writeOperation) {
         this.writeOperation = writeOperation;
         path = writeOperation.getSink().getPath();
-        dbxWriteMode = convertToWriteMode(writeOperation.getSink().getUploadMode(), "revisionValue");
+        String revision = writeOperation.getSink().getRevision();
+        dbxWriteMode = convertToWriteMode(writeOperation.getSink().getUploadMode(), revision);
         filesClient = writeOperation.getSink().getClient().files();
     }
 

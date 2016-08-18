@@ -12,9 +12,9 @@ public class FileInputIndexedRecord implements IndexedRecord {
 
 	private Schema schema;
 
-	private String[] values;
+	private String values;
 
-	public FileInputIndexedRecord(String[] values, Schema schema) {
+	public FileInputIndexedRecord(String values, Schema schema) {
 		this.values = values;
 		this.schema = schema;
 	}
@@ -40,7 +40,7 @@ public class FileInputIndexedRecord implements IndexedRecord {
 				fieldConverter[j] = new FileInputAvroRegistry().getConverterFromString(f);
 			}
 		}
-		return fieldConverter[index].convertToAvro(values[index]);
+		return fieldConverter[index].convertToAvro(values);
 	}
 
 	@Override

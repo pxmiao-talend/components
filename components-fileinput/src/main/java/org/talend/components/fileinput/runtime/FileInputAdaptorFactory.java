@@ -3,23 +3,23 @@ package org.talend.components.fileinput.runtime;
 import org.apache.avro.Schema;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
 
-public class FileInputAdaptorFactory implements IndexedRecordConverter<String[], FileInputIndexedRecord> {
+public class FileInputAdaptorFactory implements IndexedRecordConverter<String, FileInputIndexedRecord> {
 
 	Schema schema;
 
 	@Override
-	public Class<String[]> getDatumClass() {
+	public Class<String> getDatumClass() {
 		// TODO Auto-generated method stub
-		return String[].class;
+		return String.class;
 	}
 
 	@Override
-	public String[] convertToDatum(FileInputIndexedRecord value) {
+	public String convertToDatum(FileInputIndexedRecord value) {
 		return null;
 	}
 
 	@Override
-	public FileInputIndexedRecord convertToAvro(String[] values) {
+	public FileInputIndexedRecord convertToAvro(String values) {
 
 		return new FileInputIndexedRecord(values, schema);
 	}

@@ -9,7 +9,7 @@ import org.apache.avro.Schema;
 import org.talend.components.api.component.runtime.SourceOrSink;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.properties.ComponentProperties;
-import org.talend.components.fileinput.FileInputProperties;
+import org.talend.components.fileinput.tFileInputDelimited.TFileInputDelimitedProperties;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.properties.ValidationResult;
 
@@ -19,12 +19,12 @@ public class FileInputSourceOrSink implements SourceOrSink {
 	private static final long serialVersionUID = 1L;
 
 	/** Configuration extracted from the input properties. */
-	protected FileInputProperties properties;
+	protected TFileInputDelimitedProperties properties;
 
 	private transient Schema schema;
 
 	public void initialize(RuntimeContainer container, ComponentProperties properties) {
-		this.properties = (FileInputProperties) properties;
+		this.properties = (TFileInputDelimitedProperties) properties;
 		// FIXME - this should be moved to the properties setup
 		schema = new Schema.Parser().parse(this.properties.schema.schema.getStringValue());
 	}

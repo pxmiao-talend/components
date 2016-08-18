@@ -1,4 +1,6 @@
-package org.talend.components.fileinput.tFileInputDelimited;
+package org.talend.components.fileinput.tFileOutputDelimited;
+
+import static org.talend.daikon.properties.presentation.Widget.widget;
 
 import java.util.Collections;
 import java.util.Set;
@@ -6,31 +8,26 @@ import java.util.Set;
 import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.components.fileinput.FileInputProperties;
 import org.talend.daikon.properties.presentation.Form;
+import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 
-public class TFileInputDelimitedProperties extends FileInputProperties {
+public class TFileOutputDelimitedProperties extends FileInputProperties {
 
-	public TFileInputDelimitedProperties(String name) {
+	public TFileOutputDelimitedProperties(String name) {
 		super(name);
 		// TODO Auto-generated constructor stub
 	}
 
-	public enum CSVRowSeparator {
-		LF, CR, CRLF
-	}
-
+	public Property<Boolean> useStream = PropertyFactory.newBoolean("useStream");
 	public Property<String> rowSeparator = PropertyFactory.newString("rowSeparator");
 	public Property<String> fieldSeparator = PropertyFactory.newString("fieldSeparator");
+	public Property<String> textEnclosure = PropertyFactory.newString("textEnclosure");
 	public Property<Boolean> csvOptions = PropertyFactory.newBoolean("csvOptions");
 	public Property<String> escapeChar = PropertyFactory.newString("escapeChar");
-	public Property<String> textEnclosure = PropertyFactory.newString("textEnclosure");
-	public Property<Integer> head = PropertyFactory.newInteger("head");
-	public Property<Integer> foot = PropertyFactory.newInteger("foot");
-	public Property<Integer> limit = PropertyFactory.newInteger("limit");
-	public Property<Boolean> removeEmptyRow = PropertyFactory.newBoolean("removeEmptyRow");
-	public Property<Boolean> uncompress = PropertyFactory.newBoolean("uncompress");
-	public Property<Boolean> dieOnError = PropertyFactory.newBoolean("dieOnError");
+	public Property<Boolean> compress = PropertyFactory.newBoolean("compress");
+	public Property<Boolean> append = PropertyFactory.newBoolean("append");
+	public Property<Boolean> includeHead = PropertyFactory.newBoolean("includeHead");
 
 	// Advanced
 	public enum EncodingType {
@@ -40,14 +37,14 @@ public class TFileInputDelimitedProperties extends FileInputProperties {
 	public Property<Boolean> advancedSeparator = PropertyFactory.newBoolean("advancedSeparator");
 	public Property<String> thousandsSeparator = PropertyFactory.newString("thousandsSeparator");
 	public Property<String> decimalSeparator = PropertyFactory.newString("decimalSeparator");
-	public Property<Boolean> random = PropertyFactory.newBoolean("random");
-	public Property<Integer> nbRandom = PropertyFactory.newInteger("nbRandom");
+	public Property<Boolean> creat = PropertyFactory.newBoolean("creat");
+	public Property<Integer> split = PropertyFactory.newInteger("split");
+	public Property<Integer> splitEvery = PropertyFactory.newInteger("splitEvery");
+	public Property<Boolean> flushOnRow = PropertyFactory.newBoolean("flushOnRow");
+	public Property<Integer> flushOnRowNum = PropertyFactory.newInteger("flushOnRowNum");
+	public Property<Boolean> rowMode = PropertyFactory.newBoolean("rowMode");
 	public Property<EncodingType> encodingType = PropertyFactory.newEnum("encodingType", EncodingType.class);
-	public Property<Boolean> trimall = PropertyFactory.newBoolean("trimall");
-	public Property<Boolean> checkFieldsNum = PropertyFactory.newBoolean("checkFieldsNum");
-	public Property<Boolean> checkDate = PropertyFactory.newBoolean("checkDate");
-	public Property<Boolean> splitRecord = PropertyFactory.newBoolean("splitRecord");
-	public Property<Boolean> enableDecode = PropertyFactory.newBoolean("enableDecode");
+	public Property<Boolean> deleteEmptyFile = PropertyFactory.newBoolean("deleteEmptyFile");
 	public Property<Boolean> tstatCatcherStat = PropertyFactory.newBoolean("tstatCatcherStat");
 
 	@Override
@@ -55,45 +52,29 @@ public class TFileInputDelimitedProperties extends FileInputProperties {
 		super.setupProperties();
 		rowSeparator.setValue("\\n");
 		fieldSeparator.setValue(";");
-		escapeChar.setValue("\"\"");
-		textEnclosure.setValue("\"\"");
-		head.setValue(0);
-		foot.setValue(0);
+		escapeChar.setValue("\"");
 		thousandsSeparator.setValue(",");
 		decimalSeparator.setValue(".");
-		nbRandom.setValue(10);
+
 	}
 
 	@Override
 	public void setupLayout() {
 		super.setupLayout();
 		Form form = getForm(Form.MAIN);
-
+		form.addRow(schema.getForm(Form.REFERENCE));
+		form.addRow(widget(filename).setWidgetType(Widget.FILE_WIDGET_TYPE));
 		form.addRow(rowSeparator);
+		form.addRow(escapeChar);
 		form.addRow(fieldSeparator);
 		form.addRow(csvOptions);
-		form.addRow(escapeChar);
-		form.addRow(textEnclosure);
-		form.addRow(random);
-		form.addRow(nbRandom);
-		form.addRow(head);
-		form.addRow(foot);
-		form.addRow(limit);
-		form.addRow(removeEmptyRow);
-		form.addRow(uncompress);
-		form.addRow(dieOnError);
+		form.addRow(compress);
 
 		Form advancedForm = Form.create(this, Form.ADVANCED);
 		advancedForm.addRow(advancedSeparator);
 		advancedForm.addRow(thousandsSeparator);
 		advancedForm.addRow(decimalSeparator);
 		advancedForm.addRow(encodingType);
-		advancedForm.addRow(trimall);
-		advancedForm.addRow(checkFieldsNum);
-		advancedForm.addRow(checkDate);
-		advancedForm.addRow(splitRecord);
-		advancedForm.addRow(enableDecode);
-
 	}
 
 	public void afterUncompress() {
@@ -116,14 +97,13 @@ public class TFileInputDelimitedProperties extends FileInputProperties {
 	public void refreshLayout(Form form) {
 		super.refreshLayout(form);
 		if (form.getName().equals(Form.MAIN)) {
-			form.getWidget(foot.getName()).setHidden(uncompress.getValue());
+			form.getWidget(escapeChar.getName()).setHidden(!csvOptions.getValue());
+			form.getWidget(rowSeparator.getName()).setHidden(csvOptions.getValue());
 		}
 		if (form.getName().equals(Form.ADVANCED)) {
-			form.getWidget(thousandsSeparator.getName()).setHidden(!advancedSeparator.getValue());
-			form.getWidget(decimalSeparator.getName()).setHidden(!advancedSeparator.getValue());
-			form.getWidget(rowSeparator.getName()).setHidden(csvOptions.getValue());
-			form.getWidget(random.getName()).setHidden(csvOptions.getValue());
-			form.getWidget(nbRandom.getName()).setHidden(csvOptions.getValue() || !random.getValue());
+			form.getWidget(thousandsSeparator.getName()).setHidden(advancedSeparator.getValue());
+			form.getWidget(decimalSeparator.getName()).setHidden(advancedSeparator.getValue());
+
 		}
 	}
 

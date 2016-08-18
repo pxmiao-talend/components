@@ -13,7 +13,8 @@ import org.talend.components.api.component.runtime.BoundedSource;
 import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.fileinput.FileInputDefinition;
-import org.talend.components.fileinput.FileInputProperties;
+import org.talend.components.fileinput.tFileInputDelimited.TFileInputDelimitedProperties;
+import org.talend.daikon.avro.converter.IndexedRecordConverter;
 
 /**
  * Simple implementation of a reader.
@@ -35,12 +36,19 @@ public class FileInputReader extends AbstractBoundedReader<IndexedRecord> {
 
 	private transient String currentRow;
 
-	FileInputProperties properties;
+	private IndexedRecordConverter<String, FileInputIndexedRecord> factory;
 
-	public FileInputReader(RuntimeContainer container, BoundedSource source, FileInputProperties properties) {
+	private FileInputRuntime fileInputRuntime = new FileInputRuntime();
+
+	TFileInputDelimitedProperties properties;
+
+	public FileInputReader(RuntimeContainer container, BoundedSource source, TFileInputDelimitedProperties properties) {
 		super(source);
 		this.container = container;
 		this.properties = properties;
+		factory = new FileInputAdaptorFactory();
+		factory.setSchema(properties.schema.schema.getValue());
+
 	}
 
 	@Override
@@ -54,18 +62,27 @@ public class FileInputReader extends AbstractBoundedReader<IndexedRecord> {
 
 	@Override
 	public boolean advance() throws IOException {
-		currentRow = reader.readLine();
-		return currentRow != null;
+		// currentRow = reader.readLine();
+		// return currentRow != null;
+		return fileInputRuntime.fileRead(properties.uncompress.getValue()).nextRecord();
 	}
 
 	@Override
 	public IndexedRecord getCurrent() {
-		String[] values = currentRow.split(",");
-
-		FileInputAdaptorFactory factory = new FileInputAdaptorFactory();
-		factory.setSchema(properties.schema.schema.getValue());
-
-		currentIndexRecord = factory.convertToAvro(values);
+		// String fieldSeparator = properties.fieldSeparator.getStringValue();
+		// String[] values = currentRow.split(fieldSeparator);
+		String values = null;
+		try {
+			int current = 0;
+			while (fileInputRuntime.fileRead(properties.uncompress.getValue()).nextRecord()) {
+				values = fileInputRuntime.fileRead(properties.uncompress.getValue()).get(current);
+				currentIndexRecord = factory.convertToAvro(values);
+				current++;
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return currentIndexRecord;
 	}
 

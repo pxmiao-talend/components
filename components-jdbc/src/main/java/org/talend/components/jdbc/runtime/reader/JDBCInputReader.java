@@ -55,7 +55,7 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
         super(source);
         this.container = container;
         this.properties = props;
-        source = (JDBCSource) getCurrentSource();
+        this.source = (JDBCSource) getCurrentSource();
     }
 
     private Schema getSchema() throws IOException, SQLException {

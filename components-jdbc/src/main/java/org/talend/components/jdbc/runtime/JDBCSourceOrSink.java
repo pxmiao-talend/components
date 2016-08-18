@@ -40,6 +40,8 @@ public class JDBCSourceOrSink implements SourceOrSink {
 
     public JDBCConnectionInfoProperties properties;
 
+    private Connection conn;
+
     @Override
     public void initialize(RuntimeContainer runtime, ComponentProperties properties) {
         this.properties = (JDBCConnectionInfoProperties) properties;
@@ -57,21 +59,22 @@ public class JDBCSourceOrSink implements SourceOrSink {
     @Override
     public ValidationResult validate(RuntimeContainer runtime) {
         ValidationResult vr = new ValidationResult();
-        Connection conn = null;
         try {
             conn = connect(runtime);
         } catch (Exception ex) {
             fillValidationResult(vr, ex);
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
         return vr;
+    }
+
+    private void closeQuietly(Connection conn) {
+        try {
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (SQLException e) {
+            // close quietly
+        }
     }
 
     @Override
@@ -89,11 +92,7 @@ public class JDBCSourceOrSink implements SourceOrSink {
         } catch (Exception e) {
             throw new ComponentException(e);
         } finally {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeQuietly(conn);
         }
         return result;
     }
@@ -109,15 +108,16 @@ public class JDBCSourceOrSink implements SourceOrSink {
         } catch (Exception e) {
             throw new ComponentException(e);
         } finally {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeQuietly(conn);
         }
     }
 
     public Connection connect(RuntimeContainer runtime) throws ClassNotFoundException, SQLException {
+        // TODO now we use routines.system.TalendDataSource to get the data connection from the ESB runtime, but the we can't
+        // refer it by the new framework, so will fix it later
+
+        // TODO routines.system.SharedDBConnectionLog4j, the same with the TODO above
+
         if (properties instanceof ReferAnotherComponent) {
             String refComponentId = ((ReferAnotherComponent) properties).getReferencedComponentId();
             // using another component's connection
@@ -136,8 +136,14 @@ public class JDBCSourceOrSink implements SourceOrSink {
             Connection conn = JDBCTemplate.createConnection(properties.getJDBCConnectionModule());
 
             if (properties instanceof TJDBCConnectionProperties) {
-                boolean autoCommit = ((TJDBCConnectionProperties) properties).autocommit.getValue();
-                conn.setAutoCommit(autoCommit);
+                TJDBCConnectionProperties jdbcConnectionProperties = (TJDBCConnectionProperties) properties;
+
+                boolean useAutoCommit = jdbcConnectionProperties.useAutoCommit.getValue();
+                if (useAutoCommit) {
+                    boolean autoCommit = jdbcConnectionProperties.autocommit.getValue();
+                    conn.setAutoCommit(autoCommit);
+                }
+
                 if (runtime != null) {
                     runtime.setComponentData(runtime.getCurrentComponentId(), ComponentConstants.CONNECTION_KEY, conn);
                 }
@@ -145,6 +151,13 @@ public class JDBCSourceOrSink implements SourceOrSink {
 
             return conn;
         }
+    }
+
+    public Connection getConnection(RuntimeContainer runtime) throws ClassNotFoundException, SQLException {
+        if (conn == null) {
+            conn = connect(runtime);
+        }
+        return conn;
     }
 
 }

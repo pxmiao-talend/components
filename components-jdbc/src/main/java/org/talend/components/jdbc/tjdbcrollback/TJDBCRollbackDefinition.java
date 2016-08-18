@@ -52,6 +52,7 @@ public class TJDBCRollbackDefinition extends AbstractComponentDefinition impleme
         return "components-jdbc";
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public Property[] getReturnProperties() {
         return new Property[] { RETURN_ERROR_MESSAGE_PROP };

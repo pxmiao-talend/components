@@ -23,11 +23,11 @@ public class JDBCOutputInsertWriter extends JDBCOutputWriter {
     @Override
     public void open(String uId) throws IOException {
         try {
-            conn = sink.connect(runtime);
+            conn = sink.getConnection(runtime);
             sql = JDBCSQLBuilder.getInstance().generateSQL4Insert(properties.tablename.getValue(),
                     properties.main.schema.getValue());
             statement = conn.prepareStatement(sql);
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }

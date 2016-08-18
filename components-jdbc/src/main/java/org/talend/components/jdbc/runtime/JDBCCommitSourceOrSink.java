@@ -71,7 +71,7 @@ public class JDBCCommitSourceOrSink implements SourceOrSink {
         if (refComponentId != null && runtime != null) {
             java.sql.Connection conn = (java.sql.Connection) runtime.getComponentData(refComponentId,
                     ComponentConstants.CONNECTION_KEY);
-            if (conn != null && conn.isClosed()) {
+            if (conn != null && !conn.isClosed()) {
                 conn.commit();
 
                 if (properties.closeConnection.getValue()) {

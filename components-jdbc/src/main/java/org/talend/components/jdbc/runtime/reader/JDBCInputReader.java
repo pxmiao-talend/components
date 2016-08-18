@@ -80,7 +80,7 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
     public boolean start() throws IOException {
         result = new Result();
         try {
-            conn = source.connect(container);
+            conn = source.getConnection(container);
             statement = conn.createStatement();
 
             if (properties.useCursor.getValue()) {

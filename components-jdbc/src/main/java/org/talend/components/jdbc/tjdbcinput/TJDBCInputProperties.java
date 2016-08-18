@@ -14,11 +14,14 @@ package org.talend.components.jdbc.tjdbcinput;
 
 import static org.talend.daikon.properties.presentation.Widget.widget;
 
+import java.util.Collections;
+import java.util.Set;
+
 import org.talend.components.api.component.Connector;
 import org.talend.components.api.component.PropertyPathConnector;
-import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.api.properties.ComponentReferenceProperties;
 import org.talend.components.api.properties.ComponentReferencePropertiesEnclosing;
+import org.talend.components.common.FixedConnectorsComponentProperties;
 import org.talend.components.common.SchemaProperties;
 import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.JDBCConnectionInfoProperties;
@@ -30,7 +33,7 @@ import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 
-public class TJDBCInputProperties extends ComponentPropertiesImpl
+public class TJDBCInputProperties extends FixedConnectorsComponentProperties
         implements ComponentReferencePropertiesEnclosing, JDBCConnectionInfoProperties, ReferAnotherComponent {
 
     public TJDBCInputProperties(String name) {
@@ -149,5 +152,13 @@ public class TJDBCInputProperties extends ComponentPropertiesImpl
     @Override
     public String getReferencedComponentId() {
         return referencedComponent.componentInstanceId.getValue();
+    }
+
+    @Override
+    protected Set<PropertyPathConnector> getAllSchemaPropertiesConnectors(boolean isOutputConnection) {
+        if (isOutputConnection) {
+            return Collections.singleton(mainConnector);
+        }
+        return Collections.emptySet();
     }
 }

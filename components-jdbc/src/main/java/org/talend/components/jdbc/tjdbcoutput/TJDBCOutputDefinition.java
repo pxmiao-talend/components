@@ -64,4 +64,9 @@ public class TJDBCOutputDefinition extends AbstractComponentDefinition implement
         return new Property[] { RETURN_ERROR_MESSAGE_PROP, RETURN_TOTAL_RECORD_COUNT_PROP };
     }
 
+    @Override
+    public boolean isConditionalInputs() {
+        return true;
+    }
+
 }

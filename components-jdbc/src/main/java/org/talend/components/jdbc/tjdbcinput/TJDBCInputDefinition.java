@@ -66,4 +66,9 @@ public class TJDBCInputDefinition extends AbstractComponentDefinition implements
         return new Property[] { RETURN_ERROR_MESSAGE_PROP, RETURN_TOTAL_RECORD_COUNT_PROP, RETURN_QUERY_PROP };
     }
 
+    @Override
+    public boolean isSchemaAutoPropagate() {
+        return true;
+    }
+
 }

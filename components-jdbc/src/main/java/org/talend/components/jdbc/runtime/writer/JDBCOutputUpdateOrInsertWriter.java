@@ -49,6 +49,8 @@ public class JDBCOutputUpdateOrInsertWriter extends JDBCOutputWriter {
 
     @Override
     public void write(Object datum) throws IOException {
+        super.write(datum);
+
         IndexedRecord input = this.getFactory(datum).convertToAvro(datum);
 
         List<Schema.Field> allFields = input.getSchema().getFields();

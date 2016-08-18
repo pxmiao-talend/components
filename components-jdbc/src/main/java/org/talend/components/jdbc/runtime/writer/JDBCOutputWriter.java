@@ -85,11 +85,15 @@ abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, Ind
         }
 
         dieOnError = properties.dieOnError.getValue();
+
+        result = new Result();
     }
 
     abstract public void open(String uId) throws IOException;
 
-    abstract public void write(Object datum) throws IOException;
+    public void write(Object datum) throws IOException {
+        result.totalCount++;
+    }
 
     @Override
     public Result close() throws IOException {
@@ -112,6 +116,8 @@ abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, Ind
             }
         }
 
+        result.successCount = successCount;
+        result.rejectCount = rejectCount;
         return result;
     }
 

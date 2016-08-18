@@ -187,7 +187,9 @@ public class JDBCAvroRegistry extends AvroRegistry {
     }
 
     public JDBCConverter getConverter(final Field f) {
-        if (AvroUtils.isSameType(f.schema(), AvroUtils._string())) {
+        Schema basicSchema = AvroUtils.unwrapIfNullable(f.schema());
+
+        if (AvroUtils.isSameType(basicSchema, AvroUtils._string())) {
             return new JDBCConverter() {
 
                 @Override
@@ -201,7 +203,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 }
 
             };
-        } else if (AvroUtils.isSameType(f.schema(), AvroUtils._int())) {
+        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._int())) {
             return new JDBCConverter() {
 
                 @Override
@@ -215,7 +217,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 }
 
             };
-        } else if (AvroUtils.isSameType(f.schema(), AvroUtils._date())) {
+        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._date())) {
             return new JDBCConverter() {
 
                 @Override
@@ -229,7 +231,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 }
 
             };
-        } else if (AvroUtils.isSameType(f.schema(), AvroUtils._decimal())) {
+        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._decimal())) {
             return new JDBCConverter() {
 
                 @Override
@@ -243,7 +245,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 }
 
             };
-        } else if (AvroUtils.isSameType(f.schema(), AvroUtils._long())) {
+        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._long())) {
             return new JDBCConverter() {
 
                 @Override
@@ -257,7 +259,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 }
 
             };
-        } else if (AvroUtils.isSameType(f.schema(), AvroUtils._double())) {
+        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._double())) {
             return new JDBCConverter() {
 
                 @Override
@@ -271,7 +273,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 }
 
             };
-        } else if (AvroUtils.isSameType(f.schema(), AvroUtils._float())) {
+        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._float())) {
             return new JDBCConverter() {
 
                 @Override
@@ -285,7 +287,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 }
 
             };
-        } else if (AvroUtils.isSameType(f.schema(), AvroUtils._boolean())) {
+        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._boolean())) {
             return new JDBCConverter() {
 
                 @Override
@@ -299,7 +301,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 }
 
             };
-        } else if (AvroUtils.isSameType(f.schema(), AvroUtils._short())) {
+        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._short())) {
             return new JDBCConverter() {
 
                 @Override
@@ -313,7 +315,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 }
 
             };
-        } else if (AvroUtils.isSameType(f.schema(), AvroUtils._character())) {
+        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._character())) {
             return new JDBCConverter() {
 
                 @Override
@@ -327,7 +329,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 }
 
             };
-        } else if (AvroUtils.isSameType(f.schema(), AvroUtils._byte())) {
+        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._byte())) {
             return new JDBCConverter() {
 
                 @Override
